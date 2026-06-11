@@ -96,8 +96,9 @@ EMAIL_PASS=your_16_char_app_password
 EMAIL_FROM=Lucina Egg Bank <noreply@lucinaeggbank.com>
 ADMIN_EMAIL=admin@lucinaeggbank.com
 
-# Google reCAPTCHA (optional)
+# Google reCAPTCHA
 RECAPTCHA_SECRET_KEY=your_recaptcha_secret_key
+RECAPTCHA_EXPECTED_HOSTNAME=localhost
 
 # URLs (frontend and admin URLs for CORS)
 CLIENT_URL=http://localhost:5173
@@ -141,7 +142,15 @@ Backend runs at: `http://localhost:5000`
 ```bash
 cd ../frontend
 npm install
+cp .env.example .env
 npm run dev
+```
+
+Edit `frontend/.env` with your values:
+
+```env
+VITE_API_URL=http://localhost:5000/api
+VITE_RECAPTCHA_SITE_KEY=your_recaptcha_site_key
 ```
 
 Frontend runs at: `http://localhost:5173`
@@ -314,7 +323,9 @@ When a contact form is submitted:
 | `ADMIN_EMAIL` | ⚠️ | Where admin notifications are sent |
 | `CLIENT_URL` | ✅ | Frontend URL for CORS |
 | `ADMIN_URL` | ✅ | Admin dashboard URL for CORS |
-| `RECAPTCHA_SECRET_KEY` | ❌ | Optional Google reCAPTCHA secret |
+| `RECAPTCHA_SECRET_KEY` | ✅ | Google reCAPTCHA secret used by the backend to verify form submissions |
+| `RECAPTCHA_EXPECTED_HOSTNAME` | ❌ | Optional hostname check for reCAPTCHA responses |
+| `VITE_RECAPTCHA_SITE_KEY` | ✅ | Public Google reCAPTCHA site key used by the frontend widget |
 
 ---
 

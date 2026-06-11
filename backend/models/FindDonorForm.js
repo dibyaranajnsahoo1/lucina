@@ -17,7 +17,7 @@ const findDonorFormSchema = new mongoose.Schema({
   },
   howDidYouHear: {
     type: String,
-    enum: ['Google', 'Social Media', 'Friend/Relatives', 'Yelp', 'Other'],
+    enum: ['Google', 'Social Media', 'Friend / Relative', 'Friend/Relatives', 'Yelp', 'Other'],
     required: true
   },
   howDidYouHearSpecify: {

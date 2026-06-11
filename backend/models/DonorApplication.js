@@ -72,6 +72,11 @@ const donorApplicationSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  educationHighlights: {
+    type: String,
+    required: true,
+    trim: true
+  },
   hasDonatedBefore: {
     type: String,
     enum: ['Yes', 'No'],

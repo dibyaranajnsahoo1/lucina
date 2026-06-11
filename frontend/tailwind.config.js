@@ -50,6 +50,7 @@ export default {
       fontFamily: {
         serif: ["'Cormorant Garamond'", 'Georgia', 'serif'],
         sans:  ["'DM Sans'", "'Helvetica Neue'", 'Arial', 'sans-serif'],
+          montserrat: ['Montserrat', 'sans-serif'],
       },
       borderRadius: {
         DEFAULT:  '10px',

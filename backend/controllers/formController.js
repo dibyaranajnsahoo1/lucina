@@ -2,7 +2,21 @@ const DonorApplication = require('../models/DonorApplication');
 const FindDonorForm = require('../models/FindDonorForm');
 const ContactForm = require('../models/ContactForm');
 const { sendDonorApplicationConfirmation, sendContactConfirmation, notifyAdmin } = require('../utils/email');
+const { verifyRecaptchaToken } = require('../utils/recaptcha');
+const fs = require('fs');
 const path = require('path');
+
+const removeUploadedFiles = (files = []) => {
+  files.forEach((file) => {
+    if (file.path) {
+      fs.unlink(file.path, (error) => {
+        if (error) {
+          console.error('Failed to remove uploaded file:', file.path, error);
+        }
+      });
+    }
+  });
+};
 
 // ====================== DONOR APPLICATION ======================
 
@@ -10,15 +24,31 @@ const path = require('path');
 // @route POST /api/forms/donor-application
 // @access Public
 const submitDonorApplication = async (req, res) => {
+  let application;
+
   try {
     const {
+      recaptchaToken, captchaToken, 'g-recaptcha-response': googleRecaptchaToken,
       firstName, lastName, email, cellNumber, dateOfBirth,
       country, street, city, state, zipCode, province,
       heightFt, heightIn, weight, eyeColor, hairColor,
       religiousAffiliation, racialBackground, education,
-      hasDonatedBefore, ethnicOrigin, agreedToAnonymous,
+      educationHighlights, hasDonatedBefore, ethnicOrigin, agreedToAnonymous,
       referralCode, utmSource, utmMedium, utmCampaign
     } = req.body;
+
+    const captcha = await verifyRecaptchaToken(
+      recaptchaToken || captchaToken || googleRecaptchaToken,
+      req.ip
+    );
+
+    if (!captcha.success) {
+      removeUploadedFiles(req.files);
+      return res.status(captcha.status || 400).json({
+        success: false,
+        message: captcha.message
+      });
+    }
 
     // Process uploaded files
     const uploadedFiles = [];
@@ -34,7 +64,7 @@ const submitDonorApplication = async (req, res) => {
       });
     }
 
-    const application = await DonorApplication.create({
+    application = await DonorApplication.create({
       firstName, lastName, email, cellNumber,
       dateOfBirth: new Date(dateOfBirth),
       country,
@@ -43,7 +73,7 @@ const submitDonorApplication = async (req, res) => {
       heightIn: parseInt(heightIn),
       weight: parseInt(weight),
       eyeColor, hairColor, religiousAffiliation,
-      racialBackground, education, hasDonatedBefore,
+      racialBackground, education, educationHighlights, hasDonatedBefore,
       ethnicOrigin,
       uploadedFiles,
       agreedToAnonymous: agreedToAnonymous === 'true' || agreedToAnonymous === true,
@@ -64,6 +94,10 @@ const submitDonorApplication = async (req, res) => {
       applicationId: application._id
     });
   } catch (error) {
+    if (!application) {
+      removeUploadedFiles(req.files);
+    }
+
     console.error('Donor application error:', error);
     res.status(500).json({ success: false, message: error.message });
   }
@@ -123,6 +157,35 @@ const getDonorApplication = async (req, res) => {
   }
 };
 
+// @desc Download donor application file (admin)
+// @route GET /api/forms/donor-applications/:id/files/:filename
+// @access Private
+const downloadDonorApplicationFile = async (req, res) => {
+  try {
+    const application = await DonorApplication.findById(req.params.id);
+    if (!application) {
+      return res.status(404).json({ success: false, message: 'Application not found' });
+    }
+
+    const uploadedFile = application.uploadedFiles.find(
+      (file) => file.filename === req.params.filename
+    );
+
+    if (!uploadedFile) {
+      return res.status(404).json({ success: false, message: 'File not found' });
+    }
+
+    const filePath = path.join(__dirname, '../uploads/applications', uploadedFile.filename);
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({ success: false, message: 'File is missing from storage' });
+    }
+
+    return res.download(filePath, uploadedFile.originalName || uploadedFile.filename);
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 // @desc Update donor application status
 // @route PUT /api/forms/donor-applications/:id
 // @access Private
@@ -158,8 +221,51 @@ const deleteDonorApplication = async (req, res) => {
 // @access Public
 const submitFindDonorForm = async (req, res) => {
   try {
-    const form = await FindDonorForm.create(req.body);
-    notifyAdmin('findDonor', req.body);
+    const {
+      recaptchaToken,
+      captchaToken,
+      'g-recaptcha-response': googleRecaptchaToken,
+      name,
+      email,
+      phoneNumber,
+      howDidYouHear,
+      howDidYouHearSpecify,
+      needsSurrogate,
+      message,
+      userType,
+      utmSource,
+      utmMedium,
+      utmCampaign
+    } = req.body;
+
+    const captcha = await verifyRecaptchaToken(
+      recaptchaToken || captchaToken || googleRecaptchaToken,
+      req.ip
+    );
+
+    if (!captcha.success) {
+      return res.status(captcha.status || 400).json({
+        success: false,
+        message: captcha.message
+      });
+    }
+
+    const payload = {
+      name,
+      email,
+      phoneNumber,
+      howDidYouHear,
+      howDidYouHearSpecify: howDidYouHear === 'Other' ? howDidYouHearSpecify : undefined,
+      needsSurrogate,
+      message,
+      userType,
+      utmSource,
+      utmMedium,
+      utmCampaign
+    };
+
+    const form = await FindDonorForm.create(payload);
+    notifyAdmin('findDonor', payload);
     res.status(201).json({
       success: true,
       message: 'Thank you! We will contact you soon to provide donor gallery access.',
@@ -343,6 +449,7 @@ module.exports = {
   submitDonorApplication,
   getDonorApplications,
   getDonorApplication,
+  downloadDonorApplicationFile,
   updateDonorApplicationStatus,
   deleteDonorApplication,
   submitFindDonorForm,

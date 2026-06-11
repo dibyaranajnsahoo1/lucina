@@ -33,6 +33,8 @@ export const getDashboardStats = () => api.get('/forms/stats');
 // Donor Applications
 export const getDonorApplications = (params) => api.get('/forms/donor-applications', { params });
 export const getDonorApplication = (id) => api.get(`/forms/donor-applications/${id}`);
+export const downloadDonorApplicationFile = (id, filename) =>
+  api.get(`/forms/donor-applications/${id}/files/${filename}`, { responseType: 'blob' });
 export const updateDonorApplicationStatus = (id, data) => api.put(`/forms/donor-applications/${id}`, data);
 export const deleteDonorApplication = (id) => api.delete(`/forms/donor-applications/${id}`);
 

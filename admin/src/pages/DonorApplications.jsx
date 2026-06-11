@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
-import { getDonorApplications, getDonorApplication, updateDonorApplicationStatus, deleteDonorApplication } from '../utils/api';
+import { getDonorApplications, downloadDonorApplicationFile, updateDonorApplicationStatus, deleteDonorApplication } from '../utils/api';
 import { Search, Eye, Trash2, Download, X, ChevronLeft, ChevronRight, FileText } from 'lucide-react';
-
-const API_BASE = 'http://localhost:5000';
 
 const statusOptions = ['Pending', 'Pre-Qualified', 'Accepted', 'Rejected', 'In Progress'];
 
@@ -31,6 +29,22 @@ const DetailModal = ({ app, onClose, onStatusUpdate }) => {
     }
   };
 
+  const handleFileDownload = async (file) => {
+    try {
+      const blob = await downloadDonorApplicationFile(app._id, file.filename);
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = file.originalName || file.filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      toast.error(err.message || 'Could not download file');
+    }
+  };
+
   return (
     <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
       <div className="modal" style={{ maxWidth: 700 }}>
@@ -55,6 +69,7 @@ const DetailModal = ({ app, onClose, onStatusUpdate }) => {
           <InfoRow label="Racial Background" value={app.racialBackground} />
           <InfoRow label="Ethnic Origin" value={app.ethnicOrigin} />
           <InfoRow label="Education" value={app.education} />
+          <InfoRow label="Education Highlights" value={app.educationHighlights} />
           <InfoRow label="Religious Affiliation" value={app.religiousAffiliation} />
           <InfoRow label="Donated Before" value={app.hasDonatedBefore} />
           <InfoRow label="Agreed to Anonymous" value={app.agreedToAnonymous ? 'Yes' : 'No'} />
@@ -67,16 +82,13 @@ const DetailModal = ({ app, onClose, onStatusUpdate }) => {
               <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 10, textTransform: 'uppercase', letterSpacing: 0.5 }}>Uploaded Files</div>
               <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                 {app.uploadedFiles.map((f, i) => (
-                  <a
+                  <button
                     key={i}
-                    href={`${API_BASE}${f.path}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
                     className="btn btn-secondary btn-sm"
-                    download={f.originalName}
+                    onClick={() => handleFileDownload(f)}
                   >
                     <Download size={13} /> {f.originalName || `File ${i + 1}`}
-                  </a>
+                  </button>
                 ))}
               </div>
             </div>

@@ -53,12 +53,57 @@ const imageFilter = (req, file, cb) => {
   }
 };
 
-// Upload for donor applications (up to 5 images)
-const uploadApplicationFiles = multer({
+const applicationFileFilter = (req, file, cb) => {
+  const allowedExtensions = /\.(pdf|jpe?g|png|webp|heic|heif)$/i;
+  const allowedMimeTypes = [
+    'application/pdf',
+    'image/jpeg',
+    'image/jpg',
+    'image/png',
+    'image/webp',
+    'image/heic',
+    'image/heif'
+  ];
+
+  const extname = allowedExtensions.test(path.extname(file.originalname).toLowerCase());
+  const mimetype = allowedMimeTypes.includes(file.mimetype);
+
+  if (extname && mimetype) {
+    return cb(null, true);
+  }
+
+  return cb(new Error('Only PDF or image files are allowed for donor applications.'));
+};
+
+// Upload for donor applications (up to 5 PDFs/images)
+const applicationUploader = multer({
   storage: applicationStorage,
-  limits: { fileSize: 64 * 1024 * 1024 }, // 64MB
-  fileFilter: imageFilter
+  limits: { fileSize: 2 * 1024 * 1024 }, // 2MB per file
+  fileFilter: applicationFileFilter
 }).array('uploadedFiles', 5);
+
+const uploadApplicationFiles = (req, res, next) => {
+  applicationUploader(req, res, (error) => {
+    if (!error) {
+      return next();
+    }
+
+    if (error instanceof multer.MulterError) {
+      const message = error.code === 'LIMIT_FILE_SIZE'
+        ? 'Each donor application file must be 2 MB or smaller.'
+        : error.code === 'LIMIT_UNEXPECTED_FILE'
+          ? 'You can upload up to 5 files.'
+          : error.message;
+
+      return res.status(400).json({ success: false, message });
+    }
+
+    return res.status(400).json({
+      success: false,
+      message: error.message || 'Invalid upload.'
+    });
+  });
+};
 
 // Upload for donor profile images
 const uploadDonorImages = multer({
