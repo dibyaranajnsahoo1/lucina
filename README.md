@@ -1,6 +1,8 @@
 # Lucina Egg Bank — Full-Stack MERN Application
 
-A complete full-stack replica of [lucinaeggbank.com](https://lucinaeggbank.com/) built with the MERN stack (MongoDB, Express.js, React.js + Vite, Node.js).
+A complete full-stack replica of [lucinaeggbank.com](https://lucinaeggbank.com/) built with the MERN stack (MongoDB, Express.js, React.js + Vite, Node.js). 
+
+**Recent Update:** The Admin Dashboard has been seamlessly integrated directly into the main frontend application to allow for a **single, unified deployment**. The Admin panel is fully mobile-responsive, transforming standard data tables into elegant, application-style cards on smaller screens.
 
 ---
 
@@ -8,14 +10,13 @@ A complete full-stack replica of [lucinaeggbank.com](https://lucinaeggbank.com/)
 
 | Layer | Technology |
 |-------|-----------|
-| Frontend | React 18 + Vite |
-| Admin Dashboard | React 18 + Vite (separate app) |
+| Frontend | React 18 + Vite (Includes Admin Dashboard) |
 | Backend | Node.js + Express.js |
 | Database | MongoDB + Mongoose |
-| Auth | JWT (JSON Web Tokens) |
+| Auth | JWT (JSON Web Tokens) & React Context |
 | File Uploads | Multer |
 | Email | Nodemailer (Gmail SMTP) |
-| Styling | Custom CSS (design-system approach) |
+| Styling | Custom CSS (Design-system approach with PostCSS nesting) |
 
 ---
 
@@ -33,17 +34,12 @@ lucina-egg-bank/
 │   ├── utils/                # Email + seed utilities
 │   ├── .env.example          # Environment variable template
 │   └── server.js             # Entry point
-├── frontend/                 # Landing website (port 5173)
+├── frontend/                 # Unified React Application (port 5173)
 │   ├── src/
-│   │   ├── components/       # Navbar, Footer, shared forms
-│   │   ├── pages/            # All 8 pages
-│   │   └── utils/api.js      # Axios API service
-│   └── vite.config.js
-├── admin/                    # Admin dashboard (port 5174)
-│   ├── src/
-│   │   ├── components/       # AdminLayout, sidebar
-│   │   ├── context/          # Auth context
-│   │   ├── pages/            # Dashboard, CRUD pages
+│   │   ├── admin/            # Admin Dashboard module (accessed via /admin)
+│   │   ├── components/       # Public website components
+│   │   ├── pages/            # Public website pages
+│   │   ├── App.jsx           # Main router connecting public & admin routes
 │   │   └── utils/api.js      # Axios API service
 │   └── vite.config.js
 └── README.md
@@ -100,9 +96,8 @@ ADMIN_EMAIL=admin@lucinaeggbank.com
 RECAPTCHA_SECRET_KEY=your_recaptcha_secret_key
 RECAPTCHA_EXPECTED_HOSTNAME=localhost
 
-# URLs (frontend and admin URLs for CORS)
+# URLs (Frontend URL for CORS)
 CLIENT_URL=http://localhost:5173
-ADMIN_URL=http://localhost:5174
 
 NODE_ENV=development
 ```
@@ -137,7 +132,7 @@ Backend runs at: `http://localhost:5000`
 
 ---
 
-### 3. Frontend Setup
+### 3. Frontend & Admin Setup (Unified)
 
 ```bash
 cd ../frontend
@@ -154,25 +149,14 @@ VITE_RECAPTCHA_SITE_KEY=your_recaptcha_site_key
 ```
 
 Frontend runs at: `http://localhost:5173`
-
----
-
-### 4. Admin Dashboard Setup
-
-```bash
-cd ../admin
-npm install
-npm run dev
-```
-
-Admin dashboard runs at: `http://localhost:5174`
+Admin Dashboard runs at: `http://localhost:5173/admin`
 
 ---
 
 ## 🔑 Default Admin Credentials
 
 ```
-URL:      http://localhost:5174
+URL:      http://localhost:5173/admin
 Email:    admin@lucinaeggbank.com
 Password: Admin@123
 ```
@@ -196,17 +180,19 @@ Password: Admin@123
 | Blog Post | `/blog/:slug` | Full article with sidebar |
 | Contact Us | `/contact-us` | Contact form, map, info |
 
-### Admin Dashboard (`http://localhost:5174`)
+### Admin Dashboard (`http://localhost:5173/admin`)
+
+*Note: The Admin Dashboard is fully responsive. On mobile devices, data tables automatically transform into touch-friendly, application-style cards.*
 
 | Page | URL | Features |
 |------|-----|----------|
-| Dashboard | `/` | Stats overview, recent submissions |
-| Donor Applications | `/donor-applications` | View/filter/update status, download files |
-| Find Donor Leads | `/find-donor-leads` | View/filter/update status |
-| Contact Leads | `/contact-leads` | View/filter/reply via email |
-| Donor Management | `/donors` | Full CRUD with image upload |
-| Testimonials | `/testimonials` | Full CRUD, display location control |
-| Blog Posts | `/blogs` | Full CRUD, HTML content editor |
+| Dashboard | `/admin` | Stats overview, recent submissions |
+| Donor Applications | `/admin/donor-applications` | View/filter/update status, download files |
+| Find Donor Leads | `/admin/find-donor-leads` | View/filter/update status |
+| Contact Leads | `/admin/contact-leads` | View/filter/reply via email |
+| Donor Management | `/admin/donors` | Full CRUD with image upload |
+| Testimonials | `/admin/testimonials` | Full CRUD, display location control |
+| Blog Posts | `/admin/blogs` | Full CRUD, HTML content editor |
 
 ---
 
@@ -305,10 +291,11 @@ When a contact form is submitted:
 - JWT authentication for all admin routes
 - bcrypt password hashing
 - Rate limiting (100 req / 15 min per IP)
-- CORS whitelist (only frontend and admin URLs)
+- CORS whitelist (restricted to frontend URL)
 - File type validation on uploads
 - Input sanitization via express-validator
 - No sensitive data exposed in public API responses
+- Scoped Admin CSS to avoid leaking styles to the public frontend
 
 ---
 
@@ -322,30 +309,8 @@ When a contact form is submitted:
 | `EMAIL_PASS` | ⚠️ | Gmail App Password |
 | `ADMIN_EMAIL` | ⚠️ | Where admin notifications are sent |
 | `CLIENT_URL` | ✅ | Frontend URL for CORS |
-| `ADMIN_URL` | ✅ | Admin dashboard URL for CORS |
-| `RECAPTCHA_SECRET_KEY` | ✅ | Google reCAPTCHA secret used by the backend to verify form submissions |
-| `RECAPTCHA_EXPECTED_HOSTNAME` | ❌ | Optional hostname check for reCAPTCHA responses |
-| `VITE_RECAPTCHA_SITE_KEY` | ✅ | Public Google reCAPTCHA site key used by the frontend widget |
-
----
-
-## 📸 Screenshots
-
-Screenshots are located in the `/screenshots` folder (add yours here after running).
-
-**Landing Website:**
-1. Homepage — Hero section
-2. Find an Egg Donor — Donor gallery with filters
-3. Become an Egg Donor — Application form
-4. Why Lucina — Services & guarantees
-5. Contact Us — Contact form
-
-**Admin Dashboard:**
-1. Login page
-2. Dashboard — Stats overview
-3. Donor Applications — Table with status management
-4. Donor Management — CRUD with image upload
-5. Testimonials — Card-based CRUD management
+| `RECAPTCHA_SECRET_KEY` | ✅ | Google reCAPTCHA secret used by backend |
+| `VITE_RECAPTCHA_SITE_KEY` | ✅ | Public Google reCAPTCHA site key used by frontend |
 
 ---
 
