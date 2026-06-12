@@ -8,6 +8,8 @@ import { Plus, Minus } from "lucide-react";
 
 import { TrendingUp, HeartHandshake, DollarSign } from "lucide-react";
 
+const API_ORIGIN = (import.meta.env.VITE_API_URL || "http://localhost:5000/api").replace(/\/api\/?$/, "");
+
 const trustCards = [
   {
     title: "High Success Rates",
@@ -218,7 +220,7 @@ const DonorCard = ({ donor }) => (
         {donor.racialBackground || 'Ethnicity'}
       </span>
       {donor.profileImage ? (
-        <img src={`${import.meta.env.VITE_API_URL}${donor.profileImage}`} alt={donor.firstName} className="h-[110px] w-[110px] rounded-full object-cover border-4 border-white shadow-md" />
+        <img src={`${API_ORIGIN}${donor.profileImage}`} alt={donor.firstName} className="h-[110px] w-[110px] rounded-full object-cover border-4 border-white shadow-md" />
       ) : (
         <div className="h-[110px] w-[110px] rounded-full bg-white/90 border-4 border-white shadow-md flex items-center justify-center text-[42px] font-serif text-[#8C5BB3]">{donor.firstName?.charAt(0) || 'D'}</div>
       )}
@@ -263,6 +265,25 @@ const FindEggDonor = () => {
   const visibleDonors = donors.filter((donor) =>
     !selectedRace || donor.racialBackground === selectedRace
   );
+  const raceOptions = Array.from(
+    new Set([
+      ...RACES,
+      ...donors.map((donor) => donor.racialBackground).filter(Boolean),
+    ])
+  );
+  const groupedDonors = visibleDonors.reduce((groups, donor) => {
+    const race = donor.racialBackground || "Other";
+    return {
+      ...groups,
+      [race]: [...(groups[race] || []), donor],
+    };
+  }, {});
+  const groupedEntries = [
+    ...raceOptions
+      .map((race) => [race, groupedDonors[race] || []])
+      .filter(([, raceDonors]) => raceDonors.length > 0),
+    ...Object.entries(groupedDonors).filter(([race]) => !raceOptions.includes(race)),
+  ];
 
   const toggleFAQ = (index) => {
     setOpenIndex((prevIndex) => (prevIndex === index ? null : index));
@@ -383,7 +404,7 @@ const FindEggDonor = () => {
               All Ethnicities
             </button>
 
-            {RACES.map((race) => (
+            {raceOptions.map((race) => (
               <button
                 key={race}
                 onClick={() => setSelectedRace(race)}
@@ -408,8 +429,28 @@ const FindEggDonor = () => {
               <h3>No donors found</h3>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-              {visibleDonors.map((d) => <DonorCard key={d._id || d.donorId} donor={d} />)}
+            <div className="space-y-12">
+              {groupedEntries.map(([race, raceDonors]) => (
+                <div key={race}>
+                  <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                    <div>
+                      <span className="text-[11px] font-bold uppercase tracking-[2.5px] text-[#D56AA0]">
+                        Donor Category
+                      </span>
+                      <h3 className="font-serif text-[30px] text-[#1D1633]">
+                        {race}
+                      </h3>
+                    </div>
+                    <span className="text-sm font-semibold text-[#6A6275]">
+                      {raceDonors.length} {raceDonors.length === 1 ? "donor" : "donors"}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+                    {raceDonors.map((d) => <DonorCard key={d._id || d.donorId} donor={d} />)}
+                  </div>
+                </div>
+              ))}
             </div>
           )}
           <div className="mt-10 space-y-3">

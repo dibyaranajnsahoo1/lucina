@@ -18,6 +18,8 @@ const removeUploadedFiles = (files = []) => {
   });
 };
 
+const isAccepted = (value) => value === true || value === 'true' || value === 'on';
+
 // ====================== DONOR APPLICATION ======================
 
 // @desc Submit donor application
@@ -34,7 +36,7 @@ const submitDonorApplication = async (req, res) => {
       heightFt, heightIn, weight, eyeColor, hairColor,
       religiousAffiliation, racialBackground, education,
       educationHighlights, hasDonatedBefore, ethnicOrigin, agreedToAnonymous,
-      referralCode, utmSource, utmMedium, utmCampaign
+      agreedToTerms, referralCode, utmSource, utmMedium, utmCampaign
     } = req.body;
 
     const captcha = await verifyRecaptchaToken(
@@ -47,6 +49,14 @@ const submitDonorApplication = async (req, res) => {
       return res.status(captcha.status || 400).json({
         success: false,
         message: captcha.message
+      });
+    }
+
+    if (!isAccepted(agreedToAnonymous) || !isAccepted(agreedToTerms)) {
+      removeUploadedFiles(req.files);
+      return res.status(400).json({
+        success: false,
+        message: 'Please accept the donor privacy agreement and Terms of Use before submitting.'
       });
     }
 
@@ -76,7 +86,8 @@ const submitDonorApplication = async (req, res) => {
       racialBackground, education, educationHighlights, hasDonatedBefore,
       ethnicOrigin,
       uploadedFiles,
-      agreedToAnonymous: agreedToAnonymous === 'true' || agreedToAnonymous === true,
+      agreedToAnonymous: true,
+      agreedToTerms: true,
       referralCode, utmSource, utmMedium, utmCampaign
     });
 

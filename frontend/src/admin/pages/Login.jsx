@@ -5,6 +5,7 @@ import { toast } from 'react-toastify';
 import { useAuth } from '../context/AuthContext';
 import { login, setupAdmin } from '../utils/api';
 import { Eye, EyeOff, Lock, Mail, Shield } from 'lucide-react';
+import '../admin.css';
 
 const Login = () => {
   const [loading, setLoading] = useState(false);
@@ -26,7 +27,7 @@ const Login = () => {
       }
       loginAdmin(res.token, res.admin);
       toast.success(`Welcome back, ${res.admin.username}!`);
-      navigate('/');
+      navigate('/admin');
     } catch (err) {
       toast.error(err.message || 'Login failed');
     } finally {
@@ -35,6 +36,7 @@ const Login = () => {
   };
 
   return (
+    <div className="admin-app">
     <div className="login-page">
       <div className="login-left">
         <div className="login-brand">
@@ -123,18 +125,9 @@ const Login = () => {
             </button>
           </form>
 
-          <div className="login-hint">
-            <p>Default credentials:</p>
-            <code>admin@lucinaeggbank.com / Admin@123</code>
-          </div>
+         
 
-          <button
-            type="button"
-            style={{ marginTop: 16, fontSize: 13, color: 'var(--primary)', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'center', width: '100%' }}
-            onClick={() => setSetupMode(!setupMode)}
-          >
-            {setupMode ? 'Already have an account? Sign in' : 'First time? Set up admin account'}
-          </button>
+          
         </div>
       </div>
 
@@ -226,6 +219,7 @@ const Login = () => {
           .login-card { padding: 32px 24px; }
         }
       `}</style>
+    </div>
     </div>
   );
 };

@@ -1,4 +1,5 @@
 const Donor = require('../models/Donor');
+const mongoose = require('mongoose');
 const fs = require('fs');
 const path = require('path');
 
@@ -65,9 +66,14 @@ const getDonors = async (req, res) => {
 // @access Public
 const getDonor = async (req, res) => {
   try {
-    const donor = await Donor.findOne({ 
-      $or: [{ _id: req.params.id }, { donorId: req.params.id }],
-      isActive: true 
+    const lookup = [{ donorId: req.params.id }];
+    if (mongoose.Types.ObjectId.isValid(req.params.id)) {
+      lookup.push({ _id: req.params.id });
+    }
+
+    const donor = await Donor.findOne({
+      $or: lookup,
+      isActive: true
     });
     
     if (!donor) {
@@ -151,7 +157,7 @@ const deleteDonor = async (req, res) => {
     // Delete associated images
     if (donor.profileImages && donor.profileImages.length > 0) {
       donor.profileImages.forEach(imagePath => {
-        const fullPath = path.join(__dirname, '..', imagePath);
+        const fullPath = path.join(__dirname, '..', imagePath.replace(/^\/+/, ''));
         if (fs.existsSync(fullPath)) {
           fs.unlinkSync(fullPath);
         }

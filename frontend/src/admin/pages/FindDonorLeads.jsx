@@ -168,14 +168,14 @@ const FindDonorLeads = () => {
                 <tbody>
                   {leads.map(lead => (
                     <tr key={lead._id}>
-                      <td style={{ fontWeight: 600 }}>{lead.name}</td>
-                      <td style={{ fontSize: 12, color: 'var(--text-muted)' }}>{lead.email}</td>
-                      <td style={{ fontSize: 12 }}>{lead.phoneNumber}</td>
-                      <td style={{ fontSize: 12 }}>{lead.howDidYouHear}</td>
-                      <td><span className={`badge ${lead.needsSurrogate === 'Yes' ? 'badge-warning' : 'badge-gray'}`}>{lead.needsSurrogate || 'N/A'}</span></td>
-                      <td><StatusBadge status={lead.status} /></td>
-                      <td style={{ fontSize: 12, color: 'var(--text-muted)' }}>{new Date(lead.createdAt).toLocaleDateString()}</td>
-                      <td>
+                      <td data-label="Name" style={{ fontWeight: 600 }}>{lead.name}</td>
+                      <td data-label="Email" style={{ fontSize: 12, color: 'var(--text-muted)' }}>{lead.email}</td>
+                      <td data-label="Phone" style={{ fontSize: 12 }}>{lead.phoneNumber}</td>
+                      <td data-label="How Heard" style={{ fontSize: 12 }}>{lead.howDidYouHear}</td>
+                      <td data-label="Needs Surrogate"><span className={`badge ${lead.needsSurrogate === 'Yes' ? 'badge-warning' : 'badge-gray'}`}>{lead.needsSurrogate || 'N/A'}</span></td>
+                      <td data-label="Status"><StatusBadge status={lead.status} /></td>
+                      <td data-label="Date" style={{ fontSize: 12, color: 'var(--text-muted)' }}>{new Date(lead.createdAt).toLocaleDateString()}</td>
+                      <td data-label="Actions">
                         <div style={{ display: 'flex', gap: 6 }}>
                           <button className="btn btn-secondary btn-sm" onClick={() => setSelected(lead)}><Eye size={13} /></button>
                           <button className="btn btn-danger btn-sm" onClick={() => handleDelete(lead._id)}><Trash2 size={13} /></button>

@@ -66,7 +66,7 @@ const FinancialResources = () => {
   return (
     <>
       {/* Hero */}
-      <section className="bg-whiteoverflow-hidden">
+      <section className="bg-white overflow-hidden">
         <div className="container">
           <div className="hero-grid grid lg:grid-cols-[1.15fr_0.85fr] gap-20 items-center">
       

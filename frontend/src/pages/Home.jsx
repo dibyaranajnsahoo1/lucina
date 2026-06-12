@@ -113,7 +113,7 @@ const PathSection = () => (
             className="w-[50px] h-auto shrink-0 "
           />
 
-          <div className="pt-4">
+          <div className="">
             <h2 className="font-serif text-[clamp(38px,4vw,48px)] font-medium leading-[1.1]">
               Your Path to Parenthood Starts Here
             </h2>

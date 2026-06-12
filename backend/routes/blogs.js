@@ -23,17 +23,6 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Public: Get single blog by slug
-router.get('/:slug', async (req, res) => {
-  try {
-    const blog = await Blog.findOne({ slug: req.params.slug, isPublished: true });
-    if (!blog) return res.status(404).json({ success: false, message: 'Blog not found' });
-    res.json({ success: true, data: blog });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
-});
-
 // Admin CRUD
 router.get('/admin/all', protect, async (req, res) => {
   try {
@@ -66,6 +55,17 @@ router.delete('/:id', protect, async (req, res) => {
   try {
     await Blog.findByIdAndDelete(req.params.id);
     res.json({ success: true, message: 'Blog deleted' });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// Public: Get single blog by slug
+router.get('/:slug', async (req, res) => {
+  try {
+    const blog = await Blog.findOne({ slug: req.params.slug, isPublished: true });
+    if (!blog) return res.status(404).json({ success: false, message: 'Blog not found' });
+    res.json({ success: true, data: blog });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }

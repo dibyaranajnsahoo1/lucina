@@ -1,7 +1,5 @@
 import React, { Suspense, lazy } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import AdminLayout from './components/AdminLayout';
 
@@ -23,16 +21,16 @@ const Spinner = () => (
 const ProtectedRoute = ({ children }) => {
   const { admin, loading } = useAuth();
   if (loading) return <Spinner />;
-  if (!admin) return <Navigate to="/login" replace />;
+  if (!admin) return <Navigate to="/admin/login" replace />;
   return children;
 };
 
-const AppRoutes = () => {
+const AdminRoutes = () => {
   const { admin } = useAuth();
   return (
     <Suspense fallback={<Spinner />}>
       <Routes>
-        <Route path="/login" element={admin ? <Navigate to="/" replace /> : <Login />} />
+        <Route path="login" element={admin ? <Navigate to="/admin" replace /> : <Login />} />
         <Route path="/" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
           <Route index element={<Dashboard />} />
           <Route path="donor-applications" element={<DonorApplications />} />
@@ -42,21 +40,16 @@ const AppRoutes = () => {
           <Route path="testimonials" element={<Testimonials />} />
           <Route path="blogs" element={<Blogs />} />
         </Route>
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<Navigate to="/admin" replace />} />
       </Routes>
     </Suspense>
   );
 };
 
-function App() {
+export default function AdminApp() {
   return (
     <AuthProvider>
-      <Router>
-        <ToastContainer position="top-right" autoClose={4000} theme="colored" />
-        <AppRoutes />
-      </Router>
+      <AdminRoutes />
     </AuthProvider>
   );
 }
-
-export default App;

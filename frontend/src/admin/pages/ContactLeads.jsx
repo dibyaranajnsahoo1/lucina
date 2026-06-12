@@ -202,20 +202,20 @@ const ContactLeads = () => {
                 <tbody>
                   {contacts.map(contact => (
                     <tr key={contact._id}>
-                      <td style={{ fontWeight: 600 }}>{contact.name}</td>
-                      <td>
+                      <td data-label="Name" style={{ fontWeight: 600 }}>{contact.name}</td>
+                      <td data-label="Email">
                         <a href={`mailto:${contact.email}`} style={{ color: 'var(--primary)', fontSize: 12, textDecoration: 'none' }}>
                           {contact.email}
                         </a>
                       </td>
-                      <td style={{ fontSize: 12, color: 'var(--text-muted)' }}>{contact.phone || '—'}</td>
-                      <td><InquiryBadge type={contact.inquiryType} /></td>
-                      <td style={{ fontSize: 12, maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      <td data-label="Phone" style={{ fontSize: 12, color: 'var(--text-muted)' }}>{contact.phone || '—'}</td>
+                      <td data-label="Type"><InquiryBadge type={contact.inquiryType} /></td>
+                      <td data-label="Subject" style={{ fontSize: 12, maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {contact.subject}
                       </td>
-                      <td><StatusBadge status={contact.status} /></td>
-                      <td style={{ fontSize: 12, color: 'var(--text-muted)' }}>{new Date(contact.createdAt).toLocaleDateString()}</td>
-                      <td>
+                      <td data-label="Status"><StatusBadge status={contact.status} /></td>
+                      <td data-label="Date" style={{ fontSize: 12, color: 'var(--text-muted)' }}>{new Date(contact.createdAt).toLocaleDateString()}</td>
+                      <td data-label="Actions">
                         <div style={{ display: 'flex', gap: 6 }}>
                           <button className="btn btn-secondary btn-sm" onClick={() => setSelected(contact)} title="View">
                             <Eye size={13} />

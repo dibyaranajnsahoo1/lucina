@@ -5,13 +5,13 @@ const {
 } = require('../controllers/testimonialController');
 const { protect } = require('../middleware/auth');
 
-// Public
-router.get('/', getTestimonials);
-
 // Admin
 router.get('/admin/all', protect, getAllTestimonials);
 router.post('/', protect, createTestimonial);
 router.put('/:id', protect, updateTestimonial);
 router.delete('/:id', protect, deleteTestimonial);
+
+// Public
+router.get('/', getTestimonials);
 
 module.exports = router;

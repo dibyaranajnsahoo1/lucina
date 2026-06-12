@@ -218,24 +218,24 @@ const Blogs = () => {
               <tbody>
                 {filtered.map(b => (
                   <tr key={b._id}>
-                    <td>
+                    <td data-label="Title">
                       <div style={{ fontWeight: 600, fontSize: 13, maxWidth: 300, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {b.title}
                       </div>
                       <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>/{b.slug}</div>
                     </td>
-                    <td><span className="badge badge-primary" style={{ fontSize: 11 }}>{b.category}</span></td>
-                    <td style={{ fontSize: 12, color: 'var(--text-muted)' }}>{b.author}</td>
-                    <td style={{ fontSize: 12 }}>{b.readTime} min</td>
-                    <td>
+                    <td data-label="Category"><span className="badge badge-primary" style={{ fontSize: 11 }}>{b.category}</span></td>
+                    <td data-label="Author" style={{ fontSize: 12, color: 'var(--text-muted)' }}>{b.author}</td>
+                    <td data-label="Read Time" style={{ fontSize: 12 }}>{b.readTime} min</td>
+                    <td data-label="Status">
                       <span className={`badge ${b.isPublished ? 'badge-success' : 'badge-gray'}`}>
                         {b.isPublished ? 'Published' : 'Draft'}
                       </span>
                     </td>
-                    <td style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+                    <td data-label="Published" style={{ fontSize: 12, color: 'var(--text-muted)' }}>
                       {new Date(b.publishedAt).toLocaleDateString()}
                     </td>
-                    <td>
+                    <td data-label="Actions">
                       <div style={{ display: 'flex', gap: 6 }}>
                         <a href={`http://localhost:5173/blog/${b.slug}`} target="_blank" rel="noopener"
                           className="btn btn-secondary btn-sm" title="Preview">

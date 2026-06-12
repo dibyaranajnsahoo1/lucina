@@ -260,10 +260,33 @@ p  { line-height: 1.75; }
   .container { padding: 0 16px; }
 }
 
+@media (max-width: 640px) {
+  a[class*="min-w-"],
+  button[class*="min-w-"] {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    white-space: normal !important;
+    text-align: center;
+  }
+
+  [class*="ml-[72px]"] {
+    margin-left: 0 !important;
+  }
+
+  .g-recaptcha,
+  .g-recaptcha > div {
+    max-width: 100%;
+  }
+}
+
 
 
 
 .ai-gradient-text {
+  display: inline-block;
+  line-height: 1.2;
+
   background: linear-gradient(
     90deg,
     #7B3FA0,
@@ -271,13 +294,14 @@ p  { line-height: 1.75; }
     #7B3FA0,
     #E8619A
   );
+
   background-size: 300% auto;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+
   animation: aiGradientMove 3s linear infinite;
 }
-
 @keyframes aiGradientMove {
   0% {
     background-position: 0% center;

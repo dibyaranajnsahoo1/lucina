@@ -45,6 +45,17 @@ const DetailModal = ({ app, onClose, onStatusUpdate }) => {
     }
   };
 
+  const handleFileView = async (file) => {
+    try {
+      const blob = await downloadDonorApplicationFile(app._id, file.filename);
+      const url = window.URL.createObjectURL(blob);
+      window.open(url, '_blank', 'noopener,noreferrer');
+      window.setTimeout(() => window.URL.revokeObjectURL(url), 60000);
+    } catch (err) {
+      toast.error(err.message || 'Could not open file');
+    }
+  };
+
   return (
     <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
       <div className="modal" style={{ maxWidth: 700 }}>
@@ -73,6 +84,7 @@ const DetailModal = ({ app, onClose, onStatusUpdate }) => {
           <InfoRow label="Religious Affiliation" value={app.religiousAffiliation} />
           <InfoRow label="Donated Before" value={app.hasDonatedBefore} />
           <InfoRow label="Agreed to Anonymous" value={app.agreedToAnonymous ? 'Yes' : 'No'} />
+          <InfoRow label="Terms Accepted" value={app.agreedToTerms ? 'Yes' : 'No'} />
           <InfoRow label="Submitted" value={new Date(app.createdAt).toLocaleString()} />
           <InfoRow label="Email Sent" value={app.emailSent ? 'Yes ✓' : 'No'} />
 
@@ -82,13 +94,20 @@ const DetailModal = ({ app, onClose, onStatusUpdate }) => {
               <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 10, textTransform: 'uppercase', letterSpacing: 0.5 }}>Uploaded Files</div>
               <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                 {app.uploadedFiles.map((f, i) => (
-                  <button
-                    key={i}
-                    className="btn btn-secondary btn-sm"
-                    onClick={() => handleFileDownload(f)}
-                  >
-                    <Download size={13} /> {f.originalName || `File ${i + 1}`}
-                  </button>
+                  <div key={i} style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                    <button
+                      className="btn btn-secondary btn-sm"
+                      onClick={() => handleFileView(f)}
+                    >
+                      <Eye size={13} /> View {i + 1}
+                    </button>
+                    <button
+                      className="btn btn-secondary btn-sm"
+                      onClick={() => handleFileDownload(f)}
+                    >
+                      <Download size={13} /> {f.originalName || `File ${i + 1}`}
+                    </button>
+                  </div>
                 ))}
               </div>
             </div>
@@ -240,17 +259,17 @@ const DonorApplications = () => {
                 <tbody>
                   {applications.map(app => (
                     <tr key={app._id}>
-                      <td><code style={{ fontSize: 11, color: 'var(--primary)', background: 'var(--primary-pale)', padding: '2px 6px', borderRadius: 4 }}>{app.caseId}</code></td>
-                      <td style={{ fontWeight: 600 }}>{app.firstName} {app.lastName}</td>
-                      <td style={{ color: 'var(--text-muted)', fontSize: 12 }}>{app.email}</td>
-                      <td style={{ fontSize: 12 }}>{app.racialBackground}</td>
-                      <td style={{ fontSize: 12 }}>{app.education}</td>
-                      <td>
+                      <td data-label="Case ID"><code style={{ fontSize: 11, color: 'var(--primary)', background: 'var(--primary-pale)', padding: '2px 6px', borderRadius: 4 }}>{app.caseId}</code></td>
+                      <td data-label="Name" style={{ fontWeight: 600 }}>{app.firstName} {app.lastName}</td>
+                      <td data-label="Email" style={{ color: 'var(--text-muted)', fontSize: 12 }}>{app.email}</td>
+                      <td data-label="Race" style={{ fontSize: 12 }}>{app.racialBackground}</td>
+                      <td data-label="Education" style={{ fontSize: 12 }}>{app.education}</td>
+                      <td data-label="Files">
                         <span className="badge badge-gray">{app.uploadedFiles?.length || 0} files</span>
                       </td>
-                      <td><StatusBadge status={app.status} /></td>
-                      <td style={{ color: 'var(--text-muted)', fontSize: 12 }}>{new Date(app.createdAt).toLocaleDateString()}</td>
-                      <td>
+                      <td data-label="Status"><StatusBadge status={app.status} /></td>
+                      <td data-label="Date" style={{ color: 'var(--text-muted)', fontSize: 12 }}>{new Date(app.createdAt).toLocaleDateString()}</td>
+                      <td data-label="Actions">
                         <div style={{ display: 'flex', gap: 6 }}>
                           <button className="btn btn-secondary btn-sm" onClick={() => setSelectedApp(app)} title="View Details">
                             <Eye size={13} />

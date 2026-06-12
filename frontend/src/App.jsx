@@ -14,6 +14,8 @@ const BlogPost = lazy(() => import('./pages/BlogPost'));
 const FinancialResources = lazy(() => import('./pages/FinancialResources'));
 const ContactUs = lazy(() => import('./pages/ContactUs'));
 
+const AdminApp = lazy(() => import('./admin/AdminApp'));
+
 const LoadingSpinner = () => (
   <div className="flex items-center justify-center min-h-[60vh]">
     <div className="spinner"></div>
@@ -37,6 +39,7 @@ function App() {
       />
       <Suspense fallback={<LoadingSpinner />}>
         <Routes>
+          <Route path="/admin/*" element={<AdminApp />} />
           <Route element={<Layout />}>
             <Route path="/" element={<Home />} />
             <Route path="/become-an-egg-donor" element={<BecomeEggDonor />} />

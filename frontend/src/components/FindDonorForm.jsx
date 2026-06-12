@@ -227,11 +227,11 @@ const FindDonorForm = ({ title = "Find Your Perfect Egg Donor", subtitle = "" })
 
       <p className="text-white text-sm mb-6">
         By submitting this form, you agree to our{" "}
-        <a href="#" className="underline">
+        <a href="/privacy-policy" className="underline">
           Privacy Policy
         </a>{" "}
         and{" "}
-        <a href="#" className="underline">
+        <a href="/terms-of-use" className="underline">
           Terms of Use
         </a>
         {" "}and consent to receive occasional messages from Lucina Egg Bank.

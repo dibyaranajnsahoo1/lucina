@@ -71,7 +71,7 @@ const Dashboard = () => {
       </div>
 
       {/* Recent Tables */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+      <div className="grid-2">
         {/* Recent Applications */}
         <div className="card">
           <div className="card-header">
@@ -95,10 +95,10 @@ const Dashboard = () => {
                   <tr><td colSpan={4} style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '32px' }}>No applications yet</td></tr>
                 ) : recentApplications.map(a => (
                   <tr key={a._id}>
-                    <td><code style={{ fontSize: 12, color: 'var(--primary)' }}>{a.caseId}</code></td>
-                    <td style={{ fontWeight: 500 }}>{a.firstName} {a.lastName}</td>
-                    <td><StatusBadge status={a.status} /></td>
-                    <td style={{ color: 'var(--text-muted)', fontSize: 12 }}>
+                    <td data-label="Case ID"><code style={{ fontSize: 12, color: 'var(--primary)' }}>{a.caseId}</code></td>
+                    <td data-label="Applicant" style={{ fontWeight: 500 }}>{a.firstName} {a.lastName}</td>
+                    <td data-label="Status"><StatusBadge status={a.status} /></td>
+                    <td data-label="Date" style={{ color: 'var(--text-muted)', fontSize: 12 }}>
                       {new Date(a.createdAt).toLocaleDateString()}
                     </td>
                   </tr>
@@ -131,10 +131,10 @@ const Dashboard = () => {
                   <tr><td colSpan={4} style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '32px' }}>No leads yet</td></tr>
                 ) : recentLeads.map(l => (
                   <tr key={l._id}>
-                    <td style={{ fontWeight: 500 }}>{l.name}</td>
-                    <td style={{ color: 'var(--text-muted)', fontSize: 12 }}>{l.email}</td>
-                    <td><LeadStatusBadge status={l.status} /></td>
-                    <td style={{ color: 'var(--text-muted)', fontSize: 12 }}>{new Date(l.createdAt).toLocaleDateString()}</td>
+                    <td data-label="Name" style={{ fontWeight: 500 }}>{l.name}</td>
+                    <td data-label="Email" style={{ color: 'var(--text-muted)', fontSize: 12 }}>{l.email}</td>
+                    <td data-label="Status"><LeadStatusBadge status={l.status} /></td>
+                    <td data-label="Date" style={{ color: 'var(--text-muted)', fontSize: 12 }}>{new Date(l.createdAt).toLocaleDateString()}</td>
                   </tr>
                 ))}
               </tbody>

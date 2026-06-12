@@ -99,7 +99,7 @@ const donorApplicationSchema = new mongoose.Schema({
   },
   agreedToTerms: {
     type: Boolean,
-    default: true
+    default: false
   },
   referralCode: {
     type: String

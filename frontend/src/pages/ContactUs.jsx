@@ -55,9 +55,9 @@ const ContactUs = () => {
       {/* Hero */}
       <section className="page-hero">
         <div className="container">
-          <span className="text-[11px] font-bold tracking-[2.5px] uppercase text-white/50 block mb-2.5">Get in Touch</span>
-          <h1 className="text-white mb-4">We're Here to <span className="text-[#F093B4]">Help</span></h1>
-          <p>Whether you're an intended parent, aspiring egg donor, or clinic partner — our compassionate team is ready to answer your questions.</p>
+          {/* <span className="text-[11px] font-bold tracking-[2.5px] uppercase text-white/50 block mb-2.5">Get in Touch</span> */}
+          <h1 className="text-white mb-4">Contact US</h1>
+          {/* <p>Whether you're an intended parent, aspiring egg donor, or clinic partner — our compassionate team is ready to answer your questions.</p> */}
         </div>
       </section>
 

@@ -527,37 +527,55 @@ const QualificationsSection = () => (
 );
 
 /* ── Donor Testimonials ── */
+const DEFAULT_DONOR_TESTIMONIALS = [
+  {
+    name: "Natalie S.",
+    content:
+      "Lucina's Team is helpful and totally supportive. Elaine and Rachel made sure I was comfortable every step of the way and made the donation cycle so much easier.",
+    rating: 5,
+  },
+  {
+    name: "Patricia J.",
+    content:
+      "Third time donating to this program. It's been straightforward every time, and I feel supported, valued, and appreciated from start to finish.",
+    rating: 5,
+  },
+  {
+    name: "Olivia R.",
+    content:
+      "I have donated twice with Lucina Egg Bank and my experience both times was positive. The process took a while to complete but I learned a lot.",
+    rating: 5,
+  },
+  {
+    name: "Emma W.",
+    content:
+      "The staff is caring and makes sure I'm comfortable throughout the process. Everything was explained clearly.",
+    rating: 5,
+  },
+];
+
 const DonorTestimonialsSection = () => {
-  const [testimonials, setTestimonials] = useState([
-    {
-      name: "Natalie S.",
-      content:
-        "Lucina's Team is helpful and totally supportive. Elaine and Rachel made sure I was comfortable every step of the way and made the donation cycle so much easier.",
-      rating: 5,
-    },
-    {
-      name: "Patricia J.",
-      content:
-        "Third time donating to this program. It's been straightforward every time, and I feel supported, valued, and appreciated from start to finish.",
-      rating: 5,
-    },
-    {
-      name: "Olivia R.",
-      content:
-        "I have donated twice with Lucina Egg Bank and my experience both times was positive. The process took a while to complete but I learned a lot.",
-      rating: 5,
-    },
-    {
-      name: "Emma W.",
-      content:
-        "The staff is caring and makes sure I'm comfortable throughout the process. Everything was explained clearly.",
-      rating: 5,
-    },
-  ]);
+  const [testimonials, setTestimonials] = useState(DEFAULT_DONOR_TESTIMONIALS);
 
   const [current, setCurrent] = useState(0);
 
   useEffect(() => {
+    getTestimonials({ displayOn: "donor-page", limit: 8 })
+      .then((res) => {
+        const apiTestimonials = Array.isArray(res?.data) ? res.data : [];
+        if (apiTestimonials.length) {
+          setTestimonials(apiTestimonials);
+          setCurrent(0);
+        }
+      })
+      .catch(() => {
+        setTestimonials(DEFAULT_DONOR_TESTIMONIALS);
+      });
+  }, []);
+
+  useEffect(() => {
+    if (!testimonials.length) return undefined;
+
     const timer = setInterval(() => {
       setCurrent((prev) => (prev + 1) % testimonials.length);
     }, 30000);
@@ -586,7 +604,7 @@ const DonorTestimonialsSection = () => {
           borderTopRightRadius: "220px",
           borderBottomLeftRadius: "220px",
         }}>
-      <div className="max-w-[1400px] mx-auto pl-8">
+      <div className="max-w-[1400px] mx-auto px-4 md:pl-8">
 
         {/* Header */}
         <div className="flex items-center justify-between mb-14 pr-10">
@@ -638,13 +656,13 @@ const DonorTestimonialsSection = () => {
           <div
             className="flex gap-10 transition-transform duration-700 ease-in-out"
             style={{
-              transform: `translateX(-${current * 640}px)`,
+              transform: `translateX(calc(-${current} * (min(500px, calc(100vw - 48px)) + 40px)))`,
             }}
           >
             {visibleTestimonials.map((item, index) => (
               <div
                 key={index}
-                className="flex-shrink-0 w-[500px] h-[300px] px-14 py-12 border border-[#C8B3DA]"
+                className="flex-shrink-0 w-[min(500px,calc(100vw-48px))] min-h-[300px] px-8 md:px-14 py-10 md:py-12 border border-[#C8B3DA]"
                 style={{
                   background: "#DCCDE6",
                   borderTopLeftRadius: "220px",
@@ -658,7 +676,7 @@ const DonorTestimonialsSection = () => {
                 <div className="h-full flex flex-col justify-between">
 
                   <p className="font-montserrat text-[#8B67AF] text-[18px] leading-[1.8]">
-                    {item.content}
+                    {item.shortContent || item.content}
                     <span className="font-semibold underline ml-2 cursor-pointer">
                       Read More
                     </span>
@@ -670,7 +688,7 @@ const DonorTestimonialsSection = () => {
                     </h3>
 
                     <div className="flex justify-center gap-1 mt-4">
-                      {[...Array(item.rating)].map((_, i) => (
+                      {[...Array(Number(item.rating) || 5)].map((_, i) => (
                         <Star
                           key={i}
                           size={14}
@@ -1477,6 +1495,7 @@ const ApplicationForm = () => {
       const payload = {
         ...data,
         agreedToAnonymous: data.agreedToAnonymous ? "true" : "false",
+        agreedToTerms: data.agreedToTerms ? "true" : "false",
         recaptchaToken: currentRecaptchaToken,
         "g-recaptcha-response": currentRecaptchaToken,
       };
@@ -1703,9 +1722,17 @@ const ApplicationForm = () => {
               </label>
               {errors.agreedToAnonymous && <p className={errorClass}>{errors.agreedToAnonymous.message}</p>}
 
-              <p className="text-[12px] text-[#666] mt-4">
-                By submitting this form, you agree to our Privacy Policy and Terms of Use.
-              </p>
+              <label className="mt-4 flex items-start gap-3">
+                <input
+                  type="checkbox"
+                  className="mt-1"
+                  {...register("agreedToTerms", { required: "You must agree to the Privacy Policy and Terms of Use" })}
+                />
+                <span className="text-[12px] text-[#666] leading-[1.6]">
+                  By submitting this form, you agree to our Privacy Policy and Terms of Use.
+                </span>
+              </label>
+              {errors.agreedToTerms && <p className={errorClass}>{errors.agreedToTerms.message}</p>}
             </div>
 
             <div className="max-w-full overflow-x-auto">

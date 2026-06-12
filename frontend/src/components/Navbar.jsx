@@ -51,7 +51,7 @@ const Navbar = () => {
             </NavLink>
 
             {/* ReflEggction AI badge */}
-            <div className="relative z-[1] flex items-center justify-center overflow-visible px-3 py-1 rounded-md transition-all duration-200">
+            <div className="font-montserrat  relative z-[1] flex items-center justify-center overflow-visible px-3 py-1  rounded-md transition-all duration-200">
               <NavLink
                 to="/find-an-egg-donor"
                 className={({ isActive }) =>
@@ -97,12 +97,16 @@ const Navbar = () => {
             </NavLink>
 
             {/* Resources Dropdown */}
-            <div className="relative" onMouseEnter={() => setResourcesOpen(true)} onMouseLeave={() => setResourcesOpen(false)}>
+            <div
+              className="relative"
+              onMouseEnter={() => setResourcesOpen(true)}
+              onMouseLeave={() => setResourcesOpen(false)}
+            >
               <button
                 className={`navbar-link-text flex items-center gap-[6px] px-3 py-[7px] rounded-md text-[14px] font-medium transition-all duration-200 bg-transparent border-0 cursor-pointer ${
                   scrolled
                     ? 'text-white/80 hover:text-[#E8619A]'
-                    : 'text-[#4A4A5A] hover:text-[#7B3FA0] hover:bg-none'
+                    : 'text-[#4A4A5A] hover:text-[#E8619A]'
                 }`}
               >
                 Resources
@@ -113,22 +117,47 @@ const Navbar = () => {
                   className="w-4 h-4"
                 />
               </button>
+
               {resourcesOpen && (
-                <div className="absolute top-[calc(100%+10px)] left-0 bg-white rounded-[10px] shadow-[0_8px_32px_rgba(0,0,0,0.18)] min-w-[190px] overflow-hidden border border-gray-100 z-50 animate-[dropIn_0.15s_ease]">
-                  <NavLink to="/financial-resources" className="navbar-link-text block px-[18px] py-3 text-[14px] text-[#4A4A5A] hover:bg-none hover:text-[#6B2D8B] transition-all duration-150 no-underline" onClick={() => setResourcesOpen(false)}>Financial Resources</NavLink>
-                  <NavLink to="/blog"                className="navbar-link-text block px-[18px] py-3 text-[14px] text-[#4A4A5A] hover:bg-none hover:text-[#6B2D8B] transition-all duration-150 no-underline" onClick={() => setResourcesOpen(false)}>Blog</NavLink>
-                  <NavLink to="/contact-us"          className="navbar-link-text block px-[18px] py-3 text-[14px] text-[#4A4A5A] hover:bg-none hover:text-[#6B2D8B] transition-all duration-150 no-underline" onClick={() => setResourcesOpen(false)}>Contact Us</NavLink>
+                <div className="absolute top-full left-0 bg-white rounded-[10px] shadow-[0_8px_32px_rgba(0,0,0,0.18)] min-w-[190px] overflow-hidden border border-gray-100 z-50 animate-[dropIn_0.15s_ease]">
+                  <NavLink
+                    to="/financial-resources"
+                    className="navbar-link-text block px-[18px] py-[10px] text-[14px] text-[#4A4A5A] hover:text-[#E8619A] transition-all duration-150 no-underline"
+                    onClick={() => setResourcesOpen(false)}
+                  >
+                    Financial Resources
+                  </NavLink>
+
+                  <NavLink
+                    to="/blog"
+                    className="navbar-link-text block px-[18px] py-[10px] text-[14px] text-[#4A4A5A] hover:text-[#E8619A] transition-all duration-150 no-underline"
+                    onClick={() => setResourcesOpen(false)}
+                  >
+                    Blog
+                  </NavLink>
+
+                  <NavLink
+                    to="/contact-us"
+                    className="navbar-link-text block px-[18px] py-[10px] text-[14px] text-[#4A4A5A] hover:text-[#E8619A] transition-all duration-150 no-underline"
+                    onClick={() => setResourcesOpen(false)}
+                  >
+                    Contact Us
+                  </NavLink>
                 </div>
               )}
             </div>
 
             {/* Clinics Dropdown */}
-            <div className="relative" onMouseEnter={() => setClinicsOpen(true)} onMouseLeave={() => setClinicsOpen(false)}>
+            <div
+              className="relative"
+              onMouseEnter={() => setClinicsOpen(true)}
+              onMouseLeave={() => setClinicsOpen(false)}
+            >
               <button
                 className={`navbar-link-text flex items-center gap-[6px] px-3 py-[7px] rounded-md text-[14px] font-medium transition-all duration-200 bg-transparent border-0 cursor-pointer ${
                   scrolled
                     ? 'text-white/80 hover:text-[#E8619A]'
-                    : 'text-[#4A4A5A] hover:text-[#7B3FA0]'
+                    : 'text-[#4A4A5A] hover:text-[#E8619A]'
                 }`}
               >
                 Clinics
@@ -136,12 +165,19 @@ const Navbar = () => {
                 <img
                   src={downArrow}
                   alt="down arrow"
-                  className="w-5 h-5"
+                  className="w-4 h-4"
                 />
               </button>
+
               {clinicsOpen && (
-                <div className="absolute top-[calc(100%+10px)] left-0 bg-white rounded-[10px] shadow-[0_8px_32px_rgba(0,0,0,0.18)] min-w-[190px] overflow-hidden border border-gray-100 z-50 animate-[dropIn_0.15s_ease]">
-                  <NavLink to="/contact-us" className="navbar-link-text block px-[18px] py-3 text-[14px] text-[#4A4A5A] hover:text-[#6B2D8B] transition-all duration-150 no-underline" onClick={() => setClinicsOpen(false)}>Become a Partner</NavLink>
+                <div className="absolute top-full left-0 bg-white rounded-[10px] shadow-[0_8px_32px_rgba(0,0,0,0.18)] min-w-[190px] overflow-hidden border border-gray-100 z-50 animate-[dropIn_0.15s_ease]">
+                  <NavLink
+                    to="/contact-us"
+                    className="navbar-link-text block px-[18px] py-[10px] text-[14px] text-[#4A4A5A] hover:text-[#E8619A] transition-all duration-150 no-underline"
+                    onClick={() => setClinicsOpen(false)}
+                  >
+                    Become a Partner
+                  </NavLink>
                 </div>
               )}
             </div>

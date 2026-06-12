@@ -227,7 +227,7 @@ const Testimonials = () => {
           </div>
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 20 }}>
+        <div className="grid-2">
           {filtered.map(t => (
             <div key={t._id} className="card" style={{ opacity: t.isActive ? 1 : 0.6 }}>
               <div className="card-header">

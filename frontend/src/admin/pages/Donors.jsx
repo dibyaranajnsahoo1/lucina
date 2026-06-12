@@ -4,7 +4,7 @@ import { toast } from 'react-toastify';
 import { getAllDonors, createDonor, updateDonor, deleteDonor } from '../utils/api';
 import { Search, Plus, Edit2, Trash2, X, ChevronLeft, ChevronRight, Users, Image } from 'lucide-react';
 
-const API_BASE = 'http://localhost:5000';
+const API_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace(/\/api\/?$/, '');
 
 const RACIAL_BACKGROUNDS = ['Chinese','Japanese','Other Asian','American Indian or Alaska Native','Black or African American','Hispanic or Latina','Native Hawaiian or other Pacific Islander','White'];
 const EYE_COLORS = ['Blue','Light Blue','Dark Blue','Brown','Light Brown','Dark Brown','Green','Hazel'];
@@ -331,7 +331,7 @@ const Donors = () => {
                 <tbody>
                   {donors.map(donor => (
                     <tr key={donor._id}>
-                      <td>
+                      <td data-label="Photo">
                         {donor.profileImage ? (
                           <img src={`${API_BASE}${donor.profileImage}`} alt={donor.firstName}
                             style={{ width: 36, height: 36, borderRadius: 8, objectFit: 'cover' }}
@@ -343,23 +343,23 @@ const Donors = () => {
                           </div>
                         )}
                       </td>
-                      <td><code style={{ fontSize: 11, color: 'var(--primary)', background: 'var(--primary-pale)', padding: '2px 6px', borderRadius: 4 }}>{donor.donorId}</code></td>
-                      <td style={{ fontWeight: 600 }}>{donor.firstName}</td>
-                      <td>{donor.age}</td>
-                      <td style={{ fontSize: 12 }}>{donor.racialBackground}</td>
-                      <td style={{ fontSize: 12 }}>{donor.education || '—'}</td>
-                      <td>{donor.featured && <span className="badge badge-warning">Featured</span>}</td>
-                      <td>
+                      <td data-label="Donor ID"><code style={{ fontSize: 11, color: 'var(--primary)', background: 'var(--primary-pale)', padding: '2px 6px', borderRadius: 4 }}>{donor.donorId}</code></td>
+                      <td data-label="Name" style={{ fontWeight: 600 }}>{donor.firstName}</td>
+                      <td data-label="Age">{donor.age}</td>
+                      <td data-label="Race" style={{ fontSize: 12 }}>{donor.racialBackground}</td>
+                      <td data-label="Education" style={{ fontSize: 12 }}>{donor.education || '—'}</td>
+                      <td data-label="Features">{donor.featured && <span className="badge badge-warning">Featured</span>}</td>
+                      <td data-label="Availability">
                         <span className={`badge ${donor.availability === 'Available' ? 'badge-success' : donor.availability === 'Reserved' ? 'badge-warning' : 'badge-danger'}`}>
                           {donor.availability}
                         </span>
                       </td>
-                      <td>
+                      <td data-label="Active">
                         <span className={`badge ${donor.isActive ? 'badge-success' : 'badge-gray'}`}>
                           {donor.isActive ? 'Active' : 'Hidden'}
                         </span>
                       </td>
-                      <td>
+                      <td data-label="Actions">
                         <div style={{ display: 'flex', gap: 6 }}>
                           <button className="btn btn-secondary btn-sm" onClick={() => openEdit(donor)} title="Edit">
                             <Edit2 size={13} />
