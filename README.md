@@ -15,7 +15,7 @@ A complete full-stack replica of [lucinaeggbank.com](https://lucinaeggbank.com/)
 | Database | MongoDB + Mongoose |
 | Auth | JWT (JSON Web Tokens) & React Context |
 | File Uploads | Multer + Cloudinary (Cloud Storage) |
-| Email | Nodemailer (Gmail SMTP) |
+| Email | Brevo HTTP API (Production) / Nodemailer |
 | Styling | Custom CSS (Design-system approach with PostCSS nesting) |
 
 ---
@@ -84,13 +84,16 @@ MONGO_URI=mongodb://localhost:27017/lucina_egg_bank
 JWT_SECRET=your_super_secret_jwt_key_here
 JWT_EXPIRE=7d
 
-# Email (Gmail SMTP — use App Password, not your real password)
-EMAIL_HOST=smtp.gmail.com
-EMAIL_PORT=587
-EMAIL_USER=your_email@gmail.com
-EMAIL_PASS=your_16_char_app_password
-EMAIL_FROM=Lucina Egg Bank <noreply@lucinaeggbank.com>
+# Email (Brevo HTTP API for Production, bypasses SMTP blocks)
+BREVO_API_KEY=your_brevo_api_key
+BREVO_API_URL=https://api.brevo.com/v3
+FROM_EMAIL=hello.nexkarya@gmail.com
+FROM_NAME=NexKarya
 ADMIN_EMAIL=admin@lucinaeggbank.com
+
+# Fallback Email Config (Local testing only)
+EMAIL_USER=your_gmail@gmail.com
+EMAIL_PASS=your_app_password
 
 # Google reCAPTCHA
 RECAPTCHA_SECRET_KEY=your_recaptcha_secret_key
@@ -107,11 +110,8 @@ CLIENT_URL=http://localhost:5173
 NODE_ENV=development
 ```
 
-> **Gmail App Password Setup:**
-> 1. Enable 2FA on your Google account
-> 2. Go to Google Account → Security → App passwords
-> 3. Create a new App password for "Mail"
-> 4. Use that 16-char password as `EMAIL_PASS`
+> **Email Setup for Production (Render):**
+> We strongly recommend using the Brevo HTTP API instead of Gmail SMTP because Render blocks outbound SMTP ports. Use the `BREVO_API_KEY` for flawless delivery.
 
 Seed the database with sample data:
 
@@ -287,7 +287,7 @@ When a contact form is submitted:
 1. ✅ Confirmation email sent to the sender
 2. 📬 Admin notification email sent
 
-> Email requires valid Gmail SMTP credentials in `.env`. Without them, the system still works — it just skips sending.
+> Email requires either a valid `BREVO_API_KEY` (recommended for production) or Gmail SMTP credentials in `.env`. Without them, the system still works — it just skips sending.
 
 ---
 
@@ -313,8 +313,9 @@ When a contact form is submitted:
 | `CLOUDINARY_CLOUD_NAME`| ✅ | Cloudinary Cloud Name for file uploads |
 | `CLOUDINARY_API_KEY`| ✅ | Cloudinary API Key |
 | `CLOUDINARY_API_SECRET`| ✅ | Cloudinary API Secret |
-| `EMAIL_USER` | ⚠️ | Gmail address for sending emails |
-| `EMAIL_PASS` | ⚠️ | Gmail App Password |
+| `BREVO_API_KEY` | ⚠️ | Brevo API key for production email delivery |
+| `EMAIL_USER` | ⚠️ | Fallback: Gmail address for local sending |
+| `EMAIL_PASS` | ⚠️ | Fallback: Gmail App Password |
 | `ADMIN_EMAIL` | ⚠️ | Where admin notifications are sent |
 | `CLIENT_URL` | ✅ | Frontend URL for CORS |
 | `RECAPTCHA_SECRET_KEY` | ✅ | Google reCAPTCHA secret used by backend |
