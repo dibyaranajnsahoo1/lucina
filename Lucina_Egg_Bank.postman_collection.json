@@ -1,0 +1,149 @@
+{
+  "info": {
+    "name": "Lucina Egg Bank API v2",
+    "description": "API testing collection",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Admin Login",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"admin@lucinaeggbank.com\",\n  \"password\": \"Admin@123\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:5000/api/auth/login",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "auth",
+            "login"
+          ]
+        }
+      }
+    },
+    {
+      "name": "2. Get Active Donors",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5000/api/donors",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "donors"
+          ]
+        }
+      }
+    },
+    {
+      "name": "3. Get Active Testimonials",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5000/api/testimonials",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "testimonials"
+          ]
+        }
+      }
+    },
+    {
+      "name": "4. Get Published Blogs",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5000/api/blogs",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "blogs"
+          ]
+        }
+      }
+    },
+    {
+      "name": "5. Submit Contact Form",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john@example.com\",\n  \"phone\": \"1234567890\",\n  \"type\": \"Intended Parent\",\n  \"subject\": \"Inquiry\",\n  \"message\": \"Hello, I am interested in your services.\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:5000/api/forms/contact",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "forms",
+            "contact"
+          ]
+        }
+      }
+    },
+    {
+      "name": "6. Get Dashboard Stats (Requires Token)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer REPLACE_WITH_YOUR_TOKEN"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:5000/api/forms/stats",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5000",
+          "path": [
+            "api",
+            "forms",
+            "stats"
+          ]
+        }
+      }
+    }
+  ]
+}
