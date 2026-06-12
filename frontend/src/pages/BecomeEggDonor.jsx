@@ -1420,9 +1420,21 @@ const ApplicationForm = () => {
     { name: "cellNumber", label: "Cell Number", type: "tel", placeholder: "Ex. (000) 000-0000", rules: { required: "Cell number is required" } },
     { name: "dateOfBirth", label: "Date of Birth", type: "date", rules: { required: "Date of birth is required" } },
     { name: "country", label: "Country", type: "select", options: ["USA", "Outside of USA"], rules: { required: "Country is required" } },
-    { name: "heightFt", label: "Height (ft)", type: "number", placeholder: "Example: 5", extra: { min: 3, max: 7 }, rules: { required: "Height feet is required" } },
-    { name: "heightIn", label: "Height (in)", type: "number", placeholder: "Example: 7", extra: { min: 0, max: 11 }, rules: { required: "Height inches is required" } },
-    { name: "weight", label: "Weight (lbs)", type: "number", placeholder: "Example: 120", extra: { min: 50 }, rules: { required: "Weight is required" } },
+    { 
+      name: "heightFt", label: "Height (ft)", type: "number", placeholder: "Example: 5", 
+      extra: { min: 3, max: 7, onKeyDown: (e) => { if (["e", "E", "+", "-", "."].includes(e.key)) e.preventDefault(); } }, 
+      rules: { required: "Height feet is required", valueAsNumber: true, min: { value: 3, message: "Min 3 ft" }, max: { value: 7, message: "Max 7 ft" } } 
+    },
+    { 
+      name: "heightIn", label: "Height (in)", type: "number", placeholder: "Example: 7", 
+      extra: { min: 0, max: 11, onKeyDown: (e) => { if (["e", "E", "+", "-", "."].includes(e.key)) e.preventDefault(); } }, 
+      rules: { required: "Height inches is required", valueAsNumber: true, min: { value: 0, message: "Min 0 in" }, max: { value: 11, message: "Max 11 in" } } 
+    },
+    { 
+      name: "weight", label: "Weight (lbs)", type: "number", placeholder: "Example: 120", 
+      extra: { min: 50, max: 400, onKeyDown: (e) => { if (["e", "E", "+", "-", "."].includes(e.key)) e.preventDefault(); } }, 
+      rules: { required: "Weight is required", valueAsNumber: true, min: { value: 50, message: "Min 50 lbs" }, max: { value: 400, message: "Max 400 lbs" } } 
+    },
     { name: "eyeColor", label: "Eye Color", type: "select", options: ["Brown", "Blue", "Green", "Hazel", "Gray"], rules: { required: "Eye color is required" } },
     { name: "hairColor", label: "Natural Hair Color", type: "select", options: ["Black", "Brown", "Blonde", "Red", "Other"], rules: { required: "Hair color is required" } },
     { name: "religiousAffiliation", label: "Religious Affiliation", type: "select", options: ["Christian", "Hindu", "Muslim", "Jewish", "None", "Other"], rules: { required: "Religious affiliation is required" } },
