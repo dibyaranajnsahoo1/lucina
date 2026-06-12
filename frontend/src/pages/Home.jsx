@@ -4,7 +4,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { getTestimonials } from '../utils/api';
 import whiteArrowIcon  from '../../asset/arrow.png';
 import purpleArrowIcon  from '../../asset/arrow2.png';
-import parentIcon from '../../asset/Intended.png';
+import parentIcon from '../../asset/intended-parents.png';
 import donorIcon from '../../asset/female.png';
 import partnerIcon from '../../asset/doclogo.png';
 
