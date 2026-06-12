@@ -88,12 +88,13 @@ const submitDonorApplication = async (req, res) => {
       referralCode, utmSource, utmMedium, utmCampaign
     });
 
-    // Send confirmation email
-    const emailResult = await sendDonorApplicationConfirmation(application);
-    await DonorApplication.findByIdAndUpdate(application._id, { emailSent: emailResult.success });
+    // Send confirmation email asynchronously to prevent hanging
+    sendDonorApplicationConfirmation(application).then(async (emailResult) => {
+      await DonorApplication.findByIdAndUpdate(application._id, { emailSent: emailResult.success });
+    }).catch(console.error);
 
-    // Notify admin
-    notifyAdmin('donorApplication', { firstName, lastName, email, caseId: application.caseId });
+    // Notify admin asynchronously
+    notifyAdmin('donorApplication', { firstName, lastName, email, caseId: application.caseId }).catch(console.error);
 
     res.status(201).json({
       success: true,
@@ -269,7 +270,7 @@ const submitFindDonorForm = async (req, res) => {
     };
 
     const form = await FindDonorForm.create(payload);
-    notifyAdmin('findDonor', payload);
+    notifyAdmin('findDonor', payload).catch(console.error);
     res.status(201).json({
       success: true,
       message: 'Thank you! We will contact you soon to provide donor gallery access.',
@@ -378,8 +379,11 @@ const submitContactForm = async (req, res) => {
     };
 
     const form = await ContactForm.create(payload);
-    await sendContactConfirmation(payload);
-    notifyAdmin('contact', payload);
+    
+    // Send emails asynchronously
+    sendContactConfirmation(payload).catch(console.error);
+    notifyAdmin('contact', payload).catch(console.error);
+    
     res.status(201).json({
       success: true,
       message: 'Message sent successfully! We will get back to you within 1-2 business days.',

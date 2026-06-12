@@ -5,6 +5,8 @@ const createTransporter = () => {
     host: process.env.EMAIL_HOST || 'smtp.gmail.com',
     port: parseInt(process.env.EMAIL_PORT) || 587,
     secure: false,
+    connectionTimeout: 5000,
+    greetingTimeout: 5000,
     auth: {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS
@@ -15,20 +17,78 @@ const createTransporter = () => {
   });
 };
 
+const sendEmail = async ({ to, subject, html, fromOverride }) => {
+  try {
+    // 1. USE BREVO HTTP API (Preferred for production to bypass Render SMTP blocks)
+    if (process.env.BREVO_API_KEY) {
+      const fromName = process.env.FROM_NAME || "Lucina Egg Bank";
+      const fromEmail = process.env.FROM_EMAIL || "hello.nexkarya@gmail.com";
+      
+      const payload = {
+        sender: { name: fromName, email: fromEmail },
+        to: [{ email: to }],
+        subject: subject,
+        htmlContent: html
+      };
+
+      if (process.env.BREVO_TAGS) {
+        payload.tags = [process.env.BREVO_TAGS];
+      }
+
+      if (process.env.REPLY_TO_EMAIL) {
+        payload.replyTo = { 
+          email: process.env.REPLY_TO_EMAIL, 
+          name: process.env.REPLY_TO_NAME || fromName 
+        };
+      }
+
+      const apiUrl = process.env.BREVO_API_URL ? `${process.env.BREVO_API_URL}/smtp/email` : 'https://api.brevo.com/v3/smtp/email';
+      
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'accept': 'application/json',
+          'api-key': process.env.BREVO_API_KEY,
+          'content-type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.text();
+        throw new Error(`Brevo API Error: ${response.status} ${errorData}`);
+      }
+
+      console.log(`Email successfully sent to ${to} via Brevo`);
+      return { success: true };
+    }
+
+    // 2. FALLBACK TO NODEMAILER
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+      console.log('No email credentials configured. Skipping email send.');
+      return { success: false, message: 'Email not configured' };
+    }
+
+    const transporter = createTransporter();
+    const mailOptions = {
+      from: fromOverride || process.env.EMAIL_FROM || `"Lucina Egg Bank" <${process.env.EMAIL_USER}>`,
+      to: to,
+      subject: subject,
+      html: html
+    };
+
+    await transporter.sendMail(mailOptions);
+    console.log(`Email successfully sent to ${to} via Nodemailer`);
+    return { success: true };
+  } catch (error) {
+    console.error('Error sending email:', error);
+    return { success: false, error: error.message };
+  }
+};
+
 // Send donor application confirmation
 const sendDonorApplicationConfirmation = async (applicant) => {
-  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-    console.log('Email credentials not configured. Skipping email send.');
-    return { success: false, message: 'Email not configured' };
-  }
-
-  const transporter = createTransporter();
-
-  const mailOptions = {
-    from: process.env.EMAIL_FROM || `"Lucina Egg Bank" <${process.env.EMAIL_USER}>`,
-    to: applicant.email,
-    subject: 'Your Egg Donor Application Has Been Received - Lucina Egg Bank',
-    html: `
+  const html = `
       <!DOCTYPE html>
       <html>
       <head>
@@ -110,32 +170,18 @@ const sendDonorApplicationConfirmation = async (applicant) => {
         </div>
       </body>
       </html>
-    `
-  };
+    `;
 
-  try {
-    await transporter.sendMail(mailOptions);
-    return { success: true };
-  } catch (error) {
-    console.error('Error sending email:', error);
-    return { success: false, error: error.message };
-  }
+  return await sendEmail({
+    to: applicant.email,
+    subject: 'Your Egg Donor Application Has Been Received - Lucina Egg Bank',
+    html: html
+  });
 };
 
 // Send contact form confirmation  
 const sendContactConfirmation = async (contact) => {
-  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-    console.log('Email credentials not configured. Skipping email send.');
-    return { success: false, message: 'Email not configured' };
-  }
-
-  const transporter = createTransporter();
-
-  const mailOptions = {
-    from: process.env.EMAIL_FROM || `"Lucina Egg Bank" <${process.env.EMAIL_USER}>`,
-    to: contact.email,
-    subject: 'We Received Your Message - Lucina Egg Bank',
-    html: `
+  const html = `
       <!DOCTYPE html>
       <html>
       <head>
@@ -168,49 +214,37 @@ const sendContactConfirmation = async (contact) => {
         </div>
       </body>
       </html>
-    `
-  };
+    `;
 
-  try {
-    await transporter.sendMail(mailOptions);
-    return { success: true };
-  } catch (error) {
-    console.error('Error sending contact email:', error);
-    return { success: false, error: error.message };
-  }
+  return await sendEmail({
+    to: contact.email,
+    subject: 'We Received Your Message - Lucina Egg Bank',
+    html: html
+  });
 };
 
 // Notify admin of new submission
 const notifyAdmin = async (type, data) => {
-  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS || !process.env.ADMIN_EMAIL) {
-    return { success: false, message: 'Email not configured' };
+  if (!process.env.ADMIN_EMAIL && !process.env.EMAIL_USER) {
+    return { success: false, message: 'Admin Email not configured' };
   }
 
-  const transporter = createTransporter();
-  
   const subjects = {
     donorApplication: `New Egg Donor Application - ${data.firstName} ${data.lastName}`,
     findDonor: `New Find Donor Lead - ${data.name}`,
     contact: `New Contact Form Submission - ${data.name}`
   };
 
-  const mailOptions = {
-    from: process.env.EMAIL_FROM || `"Lucina System" <${process.env.EMAIL_USER}>`,
-    to: process.env.ADMIN_EMAIL,
-    subject: subjects[type] || 'New Form Submission',
-    html: `
+  const html = `
       <h2>New ${type} Submission</h2>
       <pre>${JSON.stringify(data, null, 2)}</pre>
-    `
-  };
+    `;
 
-  try {
-    await transporter.sendMail(mailOptions);
-    return { success: true };
-  } catch (error) {
-    console.error('Error notifying admin:', error);
-    return { success: false, error: error.message };
-  }
+  return await sendEmail({
+    to: process.env.ADMIN_EMAIL || process.env.EMAIL_USER,
+    subject: subjects[type] || 'New Form Submission',
+    html: html
+  });
 };
 
 module.exports = {
