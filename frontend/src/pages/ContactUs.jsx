@@ -1,21 +1,52 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import { submitContactForm } from '../utils/api';
-import { Phone, Mail, MapPin, Clock, CheckCircle } from 'lucide-react';
+import { CheckCircle } from 'lucide-react';
+import PhoneInput from "react-phone-input-2";
+import ReCAPTCHA from 'react-google-recaptcha';
+import "react-phone-input-2/lib/style.css";
 
 const ContactUs = () => {
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const { register, handleSubmit, formState: { errors }, reset } = useForm();
+  const [phone, setPhone] = useState("");
+  const [recaptchaToken, setRecaptchaToken] = useState("");
+  const [captchaError, setCaptchaError] = useState("");
+  const recaptchaRef = useRef(null);
+  const recaptchaSiteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
+  const { register, handleSubmit, formState: { errors }, reset, setValue } = useForm();
 
   const onSubmit = async (data) => {
+    const currentRecaptchaToken = recaptchaRef.current?.getValue() || recaptchaToken;
+
+    if (recaptchaSiteKey && !currentRecaptchaToken) {
+      setCaptchaError("Please complete the reCAPTCHA verification.");
+      return;
+    }
+
     setLoading(true);
+    setCaptchaError("");
+
     try {
-      await submitContactForm(data);
-      setSubmitted(true); reset();
+      await submitContactForm({
+        ...data,
+        inquiryType: data.inquiryType || "General",
+        subject: data.subject || `${data.inquiryType || "General"} Inquiry`,
+        recaptchaToken: currentRecaptchaToken,
+        "g-recaptcha-response": currentRecaptchaToken,
+      });
+      setSubmitted(true);
+      reset();
+      setPhone("");
+      setRecaptchaToken("");
+      recaptchaRef.current?.reset();
       toast.success("Message sent! We'll be in touch soon.");
-    } catch (err) { toast.error(err.message || 'Failed. Please try again.'); }
+    } catch (err) {
+      setRecaptchaToken("");
+      recaptchaRef.current?.reset();
+      toast.error(err.message || 'Failed. Please try again.');
+    }
     finally { setLoading(false); }
   };
 
@@ -30,140 +61,350 @@ const ContactUs = () => {
         </div>
       </section>
 
-      <section className="section bg-white">
-        <div className="container">
-          <div className="grid gap-[72px] items-start contact-grid" style={{ gridTemplateColumns: '1fr 1.3fr' }}>
-            {/* Left — Info */}
-            <div>
-              <h2 className="font-serif text-[clamp(22px,3vw,32px)] mb-2">Contact Information</h2>
-              <p className="text-[#6B7280] mb-8 leading-[1.7]">Our team typically responds within 1 business day.</p>
-              <div className="flex flex-col gap-3.5 mb-8">
-                {[
-                  { icon:<Phone size={20}/>, label:'Phone', value:'858-345-3274', href:'tel:8583453274' },
-                  { icon:<Mail size={20}/>,  label:'Email', value:'info@lucinaeggbank.com', href:'mailto:info@lucinaeggbank.com' },
-                  { icon:<MapPin size={20}/>,label:'Office', value:'3661 Valley Centre Dr., Suite 160, San Diego, CA 92130' },
-                  { icon:<Clock size={20}/>, label:'Hours',  value:'Monday–Friday, 9:00 AM – 5:00 PM PST' },
-                ].map(c=>(
-                  <div key={c.label} className="flex gap-4 items-start bg-[#FBF3FB] rounded-[14px] p-[18px] px-5 border border-[#EDD8F5] transition-all duration-200">
-                    <div className="w-11 h-11 bg-[#7B3FA0] rounded-xl flex items-center justify-center text-white flex-shrink-0">{c.icon}</div>
-                    <div>
-                      <div className="text-[11px] font-bold tracking-[1px] uppercase text-[#9B5EC0] mb-0.5">{c.label}</div>
-                      {c.href
-                        ? <a href={c.href} className="text-[15px] font-semibold text-[#1A1A2E] no-underline">{c.value}</a>
-                        : <div className="text-[14px] font-medium text-[#1A1A2E] leading-relaxed">{c.value}</div>}
-                    </div>
-                  </div>
-                ))}
-              </div>
-              {/* Map */}
-              <div className="rounded-[14px] overflow-hidden border border-[#EDD8F5]">
-                <iframe
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3349.8!2d-117.2340!3d32.9259!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzLCsDU1JzMzLjMiTiAxMTfCsDE0JzAyLjQiVw!5e0!3m2!1sen!2sus!4v1700000000000!5m2!1sen!2sus"
-                  width="100%" height="220" className="border-0 block" allowFullScreen="" loading="lazy" title="Lucina Egg Bank Location"
-                />
-              </div>
-            </div>
+      <section className="py-16 bg-[#F8F6F7]">
+  <div className="container mx-auto px-4">
 
-            {/* Right — Form */}
-            {submitted ? (
-              <div className="text-center py-[60px] px-10 bg-white rounded-[24px] shadow-[0_8px_40px_rgba(107,45,139,0.10)] border border-[#EDD8F5]">
-                <CheckCircle size={56} color="#7B3FA0" className="mx-auto mb-[18px]"/>
-                <h3 className="font-serif text-[28px] mb-3">Message Sent!</h3>
-                <p className="text-[#6B7280] leading-relaxed mb-6">Thank you for reaching out. We'll get back to you within 1-2 business days.</p>
-                <button className="btn btn-pink" onClick={()=>setSubmitted(false)}>Send Another Message</button>
-              </div>
-            ) : (
-              <div className="bg-white rounded-[24px] p-10 shadow-[0_8px_40px_rgba(107,45,139,0.10)] border border-[#EDD8F5]">
-                <h3 className="font-serif text-[24px] mb-1.5">Send Us a Message</h3>
-                <p className="text-[#6B7280] text-[14px] mb-7">Fill out the form and we'll get back to you as soon as possible.</p>
-                <form onSubmit={handleSubmit(onSubmit)}>
-                  <div className="form-row">
-                    <div className="form-group">
-                      <label className="form-label">Full Name <span className="required">*</span></label>
-                      <input {...register('name',{required:'Name is required'})} className="form-input" placeholder="Your full name"/>
-                      {errors.name&&<p className="form-error">{errors.name.message}</p>}
-                    </div>
-                    <div className="form-group">
-                      <label className="form-label">Email <span className="required">*</span></label>
-                      <input {...register('email',{required:'Email is required',pattern:{value:/^\S+@\S+\.\S+$/,message:'Invalid email'}})} type="email" className="form-input" placeholder="your@email.com"/>
-                      {errors.email&&<p className="form-error">{errors.email.message}</p>}
-                    </div>
-                  </div>
-                  <div className="form-row">
-                    <div className="form-group">
-                      <label className="form-label">Phone Number</label>
-                      <input {...register('phone')} type="tel" className="form-input" placeholder="+1 (555) 000-0000"/>
-                    </div>
-                    <div className="form-group">
-                      <label className="form-label">I am an... <span className="required">*</span></label>
-                      <select {...register('inquiryType',{required:'Please select'})} className="form-select">
-                        <option value="">Select your role</option>
-                        <option value="Intended Parent">Intended Parent</option>
-                        <option value="Egg Donor">Egg Donor</option>
-                        <option value="Clinic Partner">Clinic / Medical Partner</option>
-                        <option value="General">General Inquiry</option>
-                        <option value="Other">Other</option>
-                      </select>
-                      {errors.inquiryType&&<p className="form-error">{errors.inquiryType.message}</p>}
-                    </div>
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">Subject <span className="required">*</span></label>
-                    <input {...register('subject',{required:'Subject is required'})} className="form-input" placeholder="What can we help you with?"/>
-                    {errors.subject&&<p className="form-error">{errors.subject.message}</p>}
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">Message <span className="required">*</span></label>
-                    <textarea {...register('message',{required:'Message is required',minLength:{value:10,message:'Message too short'}})} className="form-textarea" placeholder="Tell us about your situation or questions…" rows={5}/>
-                    {errors.message&&<p className="form-error">{errors.message.message}</p>}
-                  </div>
-                  <div className="form-group">
-                    <label className="checkbox-wrapper">
-                      <input type="checkbox" {...register('agreedToTerms',{required:'You must agree'})}/>
-                      <span className="text-[12px] text-[#6B7280] leading-relaxed">
-                        By submitting, you agree to our <a href="#" className="text-[#7B3FA0]">Privacy Policy</a> and consent to receive communications from Lucina Egg Bank.
-                      </span>
-                    </label>
-                    {errors.agreedToTerms&&<p className="form-error">{errors.agreedToTerms.message}</p>}
-                  </div>
-                  <button type="submit" className="btn btn-pink btn-lg w-full" disabled={loading}>
-                    {loading?<><span className="spinner w-[18px] h-[18px] border-2"></span> Sending…</>:'Send Message →'}
-                  </button>
-                  <p className="text-[11px] text-[#9CA3AF] text-center mt-2.5">🔒 Your information is 100% secure.</p>
-                </form>
-              </div>
+    <div className="grid lg:grid-cols-[1.05fr_1fr] gap-0">
+
+      {/* LEFT FORM */}
+      <div className="pr-0 lg:pr-10">
+
+        <div className="flex items-center gap-4 mb-5">
+          <div className="w-10 h-[2px] bg-[#8C67AF]" />
+          <p className="uppercase tracking-[6px] text-[#8C67AF] text-[14px]">
+            Get in Touch with Lucina Egg Bank
+          </p>
+        </div>
+
+        <div className="flex items-start gap-3 mb-8">
+          <img
+            src="https://lucinaeggbank.com/wp-content/uploads/2021/03/symbol-in-tytle.svg"
+            alt=""
+            className="w-12 mt-2"
+          />
+
+          <h2 className="font-serif text-[#221B35] text-[40px] md:text-[48px] leading-[1.05]">
+            We Are Ready to Answer
+            <br />
+            Any Questions!
+          </h2>
+        </div>
+
+        {submitted && (
+          <div className="mb-5 flex items-center gap-3 rounded-md border border-[#8C67AF]/20 bg-white px-5 py-4 text-[#221B35]">
+            <CheckCircle size={22} className="shrink-0 text-[#8C67AF]" />
+            <p className="text-sm font-medium">Message sent! We'll be in touch soon.</p>
+          </div>
+        )}
+
+        <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
+
+          <div>
+            <input
+              {...register("name", {
+                required: "Name is required",
+                minLength: {
+                  value: 2,
+                  message: "Please enter your full name",
+                },
+              })}
+              type="text"
+              placeholder="Name"
+              autoComplete="name"
+              className="w-full h-[56px] rounded-md border border-[#D8D0DD] bg-[#F4EFF5] px-5 outline-none"
+            />
+            {errors.name && (
+              <p className="text-[#D85A9F] text-sm mt-2">{errors.name.message}</p>
             )}
           </div>
-        </div>
-      </section>
 
-      {/* Quick Actions */}
-      <section className="section bg-[#F8F0F8]">
-        <div className="container">
-          <div className="section-header">
-            <span className="section-tag">Quick Links</span>
-            <h2 className="section-title">What Would You Like <span className="text-[#E8619A]">to Do?</span></h2>
+          <div>
+            <select
+              {...register("inquiryType", {
+                required: "Please select an option",
+              })}
+              className="w-full h-[56px] rounded-md border border-[#D8D0DD] bg-[#F4EFF5] px-5 outline-none text-[#666]"
+            >
+              <option value="">I'm a</option>
+              <option value="Intended Parent">Intended Parent</option>
+              <option value="Egg Donor">Egg Donor</option>
+              <option value="Clinic Partner">Clinic / Partner</option>
+              <option value="General">General Inquiry</option>
+            </select>
+            {errors.inquiryType && (
+              <p className="text-[#D85A9F] text-sm mt-2">{errors.inquiryType.message}</p>
+            )}
           </div>
-          <div className="grid-3">
-            {[
-              { emoji:'🔍', title:'Find an Egg Donor',    desc:'Browse 3,500+ diverse, screened egg donors instantly for free.', link:'/find-an-egg-donor',  cta:'Browse Donors' },
-              { emoji:'🌸', title:'Become an Egg Donor',  desc:'Apply in just 2 minutes and start your donation journey.',       link:'/become-an-egg-donor', cta:'Apply Now' },
-              { emoji:'💰', title:'Financial Resources',   desc:'Learn about our pricing, financing options, and guarantee programs.', link:'/financial-resources', cta:'Explore Options' },
-            ].map(q=>(
-              <a key={q.title} href={q.link}
-                className="bg-white rounded-[20px] p-8 px-7 border border-[#EDD8F5] shadow-[0_2px_12px_rgba(107,45,139,0.06)] flex flex-col gap-3 no-underline text-inherit transition-all duration-200 hover:shadow-[0_8px_32px_rgba(107,45,139,0.14)] hover:-translate-y-[3px]"
-              >
-                <div className="text-[36px]">{q.emoji}</div>
-                <h4 className="text-[20px] font-serif text-[#1A1A2E]">{q.title}</h4>
-                <p className="text-[14px] text-[#6B7280] leading-[1.65] flex-1">{q.desc}</p>
-                <span className="text-[14px] font-semibold text-[#7B3FA0]">{q.cta} →</span>
-              </a>
-            ))}
-          </div>
-        </div>
-      </section>
 
-      <style>{`@media(max-width:900px){.contact-grid{grid-template-columns:1fr!important}}`}</style>
+          <div>
+            <PhoneInput
+              containerClass="contact-phone"
+              inputClass="contact-phone-control"
+              buttonClass="contact-phone-button"
+              dropdownClass="contact-phone-dropdown"
+              country={"in"}
+              enableSearch
+              preferredCountries={["in", "us", "ca", "gb"]}
+              countryCodeEditable={false}
+              disableCountryCode={false}
+              value={phone}
+              onChange={(value) => {
+                setPhone(value);
+                setValue("phone", value);
+              }}
+              inputProps={{
+                name: "phone",
+                autoComplete: "tel",
+                placeholder: "Phone Number",
+              }}
+            />
+            <input type="hidden" {...register("phone")} />
+          </div>
+
+          <div>
+            <input
+              {...register("email", {
+                required: "Email is required",
+                pattern: {
+                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                  message: "Enter a valid email address",
+                },
+              })}
+              type="email"
+              placeholder="Email"
+              autoComplete="email"
+              className="w-full h-[56px] rounded-md border border-[#D8D0DD] bg-[#F4EFF5] px-5 outline-none"
+            />
+            {errors.email && (
+              <p className="text-[#D85A9F] text-sm mt-2">{errors.email.message}</p>
+            )}
+          </div>
+
+          <div>
+            <textarea
+              {...register("message", {
+                required: "Message is required",
+              })}
+              rows="4"
+              placeholder="Message"
+              className="w-full rounded-md border border-[#D8D0DD] bg-[#F4EFF5] p-5 outline-none resize-none"
+            />
+            {errors.message && (
+              <p className="text-[#D85A9F] text-sm mt-2">{errors.message.message}</p>
+            )}
+          </div>
+
+          <div className="text-[12px] text-[#555] leading-[1.7]">
+            By submitting this form, you agree to our Privacy Policy and Terms
+            of Use and consent to receive communications from Lucina Egg Bank.
+          </div>
+
+          {recaptchaSiteKey && (
+            <div className="max-w-full overflow-x-auto">
+              <ReCAPTCHA
+                ref={recaptchaRef}
+                sitekey={recaptchaSiteKey}
+                onChange={(token) => {
+                  setRecaptchaToken(token || "");
+                  setCaptchaError("");
+                }}
+                onExpired={() => {
+                  setRecaptchaToken("");
+                  setCaptchaError("reCAPTCHA expired. Please verify again.");
+                }}
+                onErrored={() => {
+                  setRecaptchaToken("");
+                  setCaptchaError("reCAPTCHA could not load. Please try again.");
+                }}
+              />
+            </div>
+          )}
+          {captchaError && (
+            <p className="text-[#D85A9F] text-sm mt-2">{captchaError}</p>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="
+              mt-4
+              h-[56px]
+              px-12
+              rounded-full
+              bg-[#8C67AF]
+              text-white
+              font-semibold
+              hover:bg-[#D85A9F]
+              transition
+              disabled:cursor-not-allowed
+              disabled:opacity-70
+            "
+          >
+            {loading ? "Submitting..." : "Submit"}
+          </button>
+
+        </form>
+
+      </div>
+
+      {/* RIGHT CONTACT CARD */}
+      <div
+        className="
+          bg-[#5B4371]
+          text-white
+          mt-10
+          lg:mt-0
+          px-8
+          md:px-14
+          py-14
+          rounded-tl-[180px]
+          rounded-br-[180px]
+        "
+      >
+
+        <div className="flex items-center gap-4 mb-10">
+          <div className="w-10 h-[2px] bg-white" />
+          <span className="uppercase tracking-[5px] text-[14px]">
+            Contact information
+          </span>
+        </div>
+
+        <div className="flex items-start gap-3 mb-12">
+          <img
+            src="https://lucinaeggbank.com/wp-content/uploads/2021/03/symbol-in-tytle.svg"
+            alt=""
+            className="w-10"
+          />
+
+          <h3 className="font-serif text-[34px] text-white md:text-[42px] leading-none">
+            Contact Us at Our LA Office
+          </h3>
+        </div>
+
+        <div className="space-y-12">
+
+          <div>
+            <p className="text-[18px] leading-[1.8]">
+              3661 Valley Centre Dr., Suite 160
+              <br />
+              San Diego, CA 92130
+            </p>
+          </div>
+
+          <div>
+            <h4 className="font-serif text-white text-[30px] mb-4">
+              For Intended Parents and Clinical Partners
+            </h4>
+
+            <div className="space-y-2 text-[18px]">
+              <p>Tel. +1 858-345-3274</p>
+              <p>Fax. 858-345-3278</p>
+              <p>info@lucinaeggbank.com</p>
+            </div>
+          </div>
+
+          <div>
+            <h4 className="font-serif text-white text-[30px] mb-4">
+              For Egg Donors
+            </h4>
+
+            <div className="space-y-2 text-[18px]">
+              <p>858-345-3274</p>
+              <p>donation@lucinaeggbank.com</p>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+</section>
+<section className="pb-16 bg-[#F8F6F7]">
+  <div className="w-full overflow-hidden rounded-tr-[220px] rounded-bl-[220px]">
+
+    <iframe
+      src="https://maps.google.com/maps?q=3661%20Valley%20Centre%20Dr%20Suite%20160%20San%20Diego%20CA%2092130&t=&z=11&ie=UTF8&iwloc=&output=embed"
+      width="100%"
+      height="800"
+      style={{ border: 0 }}
+      loading="lazy"
+      allowFullScreen
+      referrerPolicy="no-referrer-when-downgrade"
+      title="Lucina Egg Bank Location"
+    />
+
+  </div>
+</section>
+
+      
+
+      <style>{`
+        @media(max-width:900px){.contact-grid{grid-template-columns:1fr!important}}
+
+        .contact-phone.react-tel-input {
+          width: 100% !important;
+          height: 56px !important;
+          border: 1px solid #D8D0DD !important;
+          border-radius: 6px !important;
+          background: #F4EFF5 !important;
+          transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .contact-phone .form-control {
+          width: 100% !important;
+          height: 56px !important;
+          border: 0 !important;
+          border-radius: 6px !important;
+          background: #F4EFF5 !important;
+          color: #221B35 !important;
+          font-size: 16px !important;
+          outline: none !important;
+          box-shadow: none !important;
+          padding-left: 60px !important;
+        }
+
+        .contact-phone.react-tel-input:focus-within {
+          border-color: #8C67AF !important;
+          box-shadow: 0 0 0 2px rgba(140, 103, 175, 0.12) !important;
+        }
+
+        .contact-phone .form-control:focus {
+          border: 0 !important;
+          box-shadow: none !important;
+          background: #F4EFF5 !important;
+        }
+
+        .contact-phone .flag-dropdown {
+          border: 0 !important;
+          border-radius: 6px 0 0 6px !important;
+          background: #F4EFF5 !important;
+        }
+
+        .contact-phone .selected-flag,
+        .contact-phone .selected-flag:hover,
+        .contact-phone .selected-flag:focus,
+        .contact-phone .flag-dropdown.open .selected-flag {
+          background: #F4EFF5 !important;
+          border-radius: 6px 0 0 6px !important;
+        }
+
+        .contact-phone .country-list {
+          border: 1px solid #D8D0DD;
+          border-radius: 8px;
+          box-shadow: 0 12px 30px rgba(34, 27, 53, 0.16);
+        }
+
+        .contact-phone .search-box {
+          width: calc(100% - 20px);
+          height: 36px;
+          margin: 8px 10px;
+          border: 1px solid #D8D0DD;
+          border-radius: 6px;
+        }
+      `}</style>
     </>
   );
 };

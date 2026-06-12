@@ -586,7 +586,7 @@ const DonorTestimonialsSection = () => {
           borderTopRightRadius: "220px",
           borderBottomLeftRadius: "220px",
         }}>
-      <div className="max-w-[1200px] mx-auto pl-8">
+      <div className="max-w-[1400px] mx-auto pl-8">
 
         {/* Header */}
         <div className="flex items-center justify-between mb-14 pr-10">
@@ -644,7 +644,7 @@ const DonorTestimonialsSection = () => {
             {visibleTestimonials.map((item, index) => (
               <div
                 key={index}
-                className="flex-shrink-0 w-[450px] h-[250px] px-14 py-12 border border-[#C8B3DA]"
+                className="flex-shrink-0 w-[500px] h-[300px] px-14 py-12 border border-[#C8B3DA]"
                 style={{
                   background: "#DCCDE6",
                   borderTopLeftRadius: "220px",
@@ -657,7 +657,7 @@ const DonorTestimonialsSection = () => {
               >
                 <div className="h-full flex flex-col justify-between">
 
-                  <p className="text-[#8B67AF] text-[14px] leading-[1.8]">
+                  <p className="font-montserrat text-[#8B67AF] text-[18px] leading-[1.8]">
                     {item.content}
                     <span className="font-semibold underline ml-2 cursor-pointer">
                       Read More
@@ -1169,8 +1169,7 @@ const LegacyApplicationForm = () => {
 
             <div>
               <p className="text-[13px] leading-[1.8] text-[#555]">
-                Please upload at least 2 photos to complete the application.
-                We recommend you upload 3-5 photos, but the more photos, the merrier!
+                Please upload at least 2 photos to complete the application. We recommend you upload 3-5 photos, but the more photos, the merrier!
               </p>
 
               <p className="text-[13px] leading-[1.8] text-[#555] mt-2">
@@ -1627,14 +1626,15 @@ const ApplicationForm = () => {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-6">
             <div>
-              <p className="text-[13px] leading-[1.8] text-[#555]">
-                Upload PDF or image files only. Accepted formats: PDF, JPG, PNG, WEBP, HEIC, and HEIF.
+              <p className="font-montserrat text-[13px] leading-[1.8] text-[#555]">
+                Please upload at least 2 photos to complete the application. We recommend you upload 3-5 photos, but the more photos, the merrier!
               </p>
-              <p className="text-[13px] leading-[1.8] text-[#555] mt-2">
-                You can upload up to 5 files.
+              <p className="font-montserrat text-[13px] leading-[1.8] text-[#555] mt-2">
+                *Check sample pictures here.
+
               </p>
-              <p className="text-[13px] leading-[1.8] text-[#555]">
-                Make sure each file is not larger than 2 MB.
+              <p className="font-montserrat text-[13px] leading-[1.8] text-[#555]">
+                Make sure the photo you upload is not larger than 2 MB or if you are not sure then take a screenshot of your photo and upload the screenshot
               </p>
             </div>
 
@@ -1690,7 +1690,7 @@ const ApplicationForm = () => {
 
           <div className="flex flex-col lg:flex-row justify-between items-start mt-8 gap-10">
             <div className="flex-1">
-              <h4 className="font-semibold mb-4">
+              <h4 className="font-montserrat font-bold mb-4 text-[18px]">
                 I have read and agree this is an anonymous donation and won't have contact with or information of the recipient family.
               </h4>
 

@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Calendar, Clock, ArrowRight } from 'lucide-react';
 import { getBlogs } from '../utils/api';
+import PurpleArrowIcon  from '../../asset/arrow2.png';
 
 const STATIC_BLOGS = [
   { _id:'1', title:'Understanding the Egg Donation Process: A Complete Guide', slug:'understanding-egg-donation-process-complete-guide', excerpt:'Egg donation is a generous act that helps many people build their families. Learn everything about the process, from application to retrieval.', image:'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=800', category:'Egg Donation', author:'Lucina Medical Team', readTime:8, publishedAt:'2024-01-15T00:00:00Z' },
-  { _id:'2', title:'Navigating Fertility Challenges: A Guide for Intended Parents', slug:'navigating-fertility-challenges-guide-intended-parents', excerpt:'Facing fertility challenges can be overwhelming. This comprehensive guide helps intended parents understand their options, including egg donation.', image:'https://images.unsplash.com/photo-1519627305757-9f7b9dfe1524?w=800', category:'Intended Parents', author:'Dr. David Harari', readTime:10, publishedAt:'2024-02-20T00:00:00Z' },
+  { _id:'2', title:'Navigating Fertility Challenges: A Guide for Intended Parents', slug:'navigating-fertility-challenges-guide-intended-parents', excerpt:'Facing fertility challenges can be overwhelming. This comprehensive guide helps intended parents understand their options, including egg donation.', image:'https://lucinaeggbank.com/wp-content/uploads/2026/04/lucina-egg-bank-egg-donation-requirements-10.webp', category:'Intended Parents', author:'Dr. David Harari', readTime:10, publishedAt:'2024-02-20T00:00:00Z' },
 ];
 
 const CATEGORIES = ['All','Egg Donation','Intended Parents','Fertility','Success Stories','Health','News'];
@@ -42,6 +42,9 @@ const Blog = () => {
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [category, setCategory] = useState('All');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortBy, setSortBy] = useState("Newest");
 
   useEffect(() => {
     const fetch = async () => {
@@ -54,82 +57,389 @@ const Blog = () => {
     };
     fetch();
   }, [category]);
+  
 
   return (
     <>
-      <section className="page-hero">
-        <div className="container">
-          <span className="text-[11px] font-bold tracking-[2.5px] uppercase text-white/50 block mb-2.5">Resources</span>
-          <h1 className="text-white mb-4">Our <span className="text-[#F093B4]">Blog</span></h1>
-          <p>Expert insights, success stories, and guides on egg donation, fertility, and family building.</p>
+      <section
+        className="h-[260px] bg-cover bg-center flex items-center"
+        style={{
+          backgroundImage:
+            "url('https://lucinaeggbank.com/wp-content/uploads/2024/08/lgbtq-banner-1.webp')",
+        }}
+      >
+        <div className="container mx-auto px-6">
+
+          <h1 className="font-serif font-bold text-[70px] text-[#8C67AF]">
+            Blog
+          </h1>
+
+          <p className="font-montserrat max-w-[520px] text-[#333] leading-[1.6]">
+           You can read all about finding the perfect egg donor and how becoming a donor can make a lasting difference in growing families. Explore helpful guides, inspiring stories, and expert advice to support you on your journey—whether you're building your family or considering egg donation.
+          </p>
+
         </div>
       </section>
 
-      <section className="section bg-white">
-        <div className="container">
-          {/* Category filters */}
-          <div className="flex gap-2 flex-wrap mb-10">
-            {CATEGORIES.map(cat=>(
-              <button key={cat} onClick={()=>{setCategory(cat);setLoading(true);}}
-                className="px-[18px] py-2 rounded-full border-[1.5px] text-[13px] font-medium cursor-pointer transition-all duration-200"
-                style={{
-                  borderColor: category===cat ? '#7B3FA0' : '#D4B8E8',
-                  background:  category===cat ? '#7B3FA0' : 'white',
-                  color:       category===cat ? 'white'   : '#4A4A5A',
-                }}>
-                {cat}
-              </button>
-            ))}
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-4">
+
+          {/* Search + Filter */}
+          <div className="flex flex-col lg:flex-row gap-5 justify-between mb-12">
+
+            <div className="relative w-full lg:max-w-[820px]">
+
+                <input
+                  type="text"
+                  placeholder="Explore our latest posts here..."
+                  className="
+                    w-full
+                    h-[52px]
+                    border
+                    border-[#9D77BB]
+                    rounded-full
+                    px-6
+                    pr-[80px]
+                    outline-none
+                  "
+                />
+
+                <button
+                  className="
+                    absolute
+                    right-0
+                    top-0
+                    h-[52px]
+                    w-[70px]
+                    bg-[#8C67AF]
+                    rounded-r-full
+                    flex
+                    items-center
+                    justify-center
+                  "
+                >
+                  <img
+                    src={PurpleArrowIcon}
+                    alt=""
+                    className="w-5 h-5 brightness-0 invert"
+                  />
+                </button>
+
+              </div>
+
+            <div className="flex items-center gap-3">
+
+              <span className="text-[14px] font-semibold text-[#222]">
+                Filter by:
+              </span>
+
+              <select
+                className="
+                  h-[28px]
+                  border
+                  border-[#BBA6CE]
+                  text-[12px]
+                  px-2
+                  bg-white
+                  outline-none
+                  cursor-pointer
+                "
+              >
+                <option>Newest</option>
+                <option>Oldest</option>
+              </select>
+
+            </div>
+
           </div>
 
-          {loading ? (
-            <div className="text-center py-[60px]"><div className="spinner mx-auto"/></div>
-          ) : blogs.length===0 ? (
-            <div className="text-center py-[60px] text-[#6B7280]">
-              <div className="text-[48px] mb-4">📰</div>
-              <h3>No posts found</h3>
+          <div className="grid lg:grid-cols-[250px_1fr] gap-8">
+
+            {/* Sidebar */}
+            <div className="bg-white border rounded-md p-8 h-fit">
+
+              <ul className="space-y-5">
+
+                <li className="text-[#EB7EB2] font-medium">
+                  All Articles →
+                </li>
+
+                <li>Intended Parents</li>
+                <li>Egg Donor</li>
+                <li>LGBTQ+ Community</li>
+                <li>Frozen Eggs</li>
+
+              </ul>
+
             </div>
-          ) : (
-            <>
-              {/* Featured */}
-              {blogs[0]&&(
-                <Link to={`/blog/${blogs[0].slug}`}
-                  className="grid rounded-[24px] overflow-hidden shadow-[0_8px_40px_rgba(107,45,139,0.12)] border border-[#EDD8F5] mb-12 no-underline text-inherit transition-all duration-200 hover:shadow-[0_12px_56px_rgba(107,45,139,0.18)] featured-blog-grid"
-                  style={{ gridTemplateColumns: '1fr 1fr' }}>
-                  <div className="h-[400px] overflow-hidden">
-                    {blogs[0].image
-                      ? <img src={blogs[0].image} alt={blogs[0].title} className="w-full h-full object-cover"/>
-                      : <div className="bg-[#F3EEF8] w-full h-full flex items-center justify-center text-[80px]">📝</div>}
+
+            {/* Blog Grid */}
+            <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-5">
+
+              {blogs.map((blog) => (
+                <Link
+                  key={blog._id}
+                  to={`/blog/${blog.slug}`}
+                  className="
+                    border
+                    border-[#9D77BB]
+                    rounded-md
+                    overflow-hidden
+                    group
+                    bg-white
+                  "
+                >
+
+                  <div className="h-[180px] overflow-hidden">
+                    <img
+                      src={blog.image}
+                      alt=""
+                      className="
+                        w-full
+                        h-full
+                        object-cover
+                        transition
+                        duration-300
+                        group-hover:scale-105
+                      "
+                    />
                   </div>
-                  <div className="p-11 px-10 flex flex-col justify-center bg-white">
-                    <span className="inline-block bg-[#F3EEF8] text-[#7B3FA0] px-3 py-1 rounded-full text-[11px] font-bold mb-4 w-fit">{blogs[0].category}</span>
-                    <h2 className="font-serif text-[clamp(20px,2.5vw,28px)] text-[#1A1A2E] mb-3 leading-[1.3]">{blogs[0].title}</h2>
-                    <p className="text-[#6B7280] text-[14px] leading-[1.7] mb-5">{blogs[0].excerpt}</p>
-                    <div className="flex gap-4 text-[13px] text-[#9B5EC0] mb-5 flex-wrap">
-                      <span className="flex items-center gap-1"><Calendar size={13}/>{new Date(blogs[0].publishedAt).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</span>
-                      <span className="flex items-center gap-1"><Clock size={13}/>{blogs[0].readTime} min read</span>
+
+                  <div className="p-4">
+
+                    <div className="text-[12px] text-gray-500 mb-2">
+                      {new Date(blog.publishedAt).toLocaleDateString()}
                     </div>
-                    <span className="btn btn-pink inline-flex items-center gap-2 w-fit">Read Article <ArrowRight size={15}/></span>
+
+                    <h3 className="font-semibold text-[18px] leading-[1.4] mb-3">
+                      {blog.title}
+                    </h3>
+
+                    <p className="text-gray-600 text-sm line-clamp-3">
+                      {blog.excerpt}
+                    </p>
+
                   </div>
+
+                  <div
+                    className="
+                      h-[44px]
+                      bg-[#F4EEF7]
+                      flex
+                      justify-end
+                      items-center
+                      px-4
+                    "
+                  >
+                    <img
+                      src={PurpleArrowIcon}
+                      alt=""
+                      className="w-4 h-4"
+                    />
+                  </div>
+
                 </Link>
-              )}
-              {blogs.length>1&&(
-                <div className="grid gap-6" style={{ gridTemplateColumns: 'repeat(3,1fr)' }}>
-                  {blogs.slice(1).map(blog=><BlogCard key={blog._id||blog.slug} blog={blog}/>)}
-                </div>
-              )}
-            </>
-          )}
+              ))}
+
+            </div>
+
+          </div>
+
+          {/* Pagination */}
+          <div className="flex justify-center items-center gap-3 mt-14">
+
+            <button className="text-[#8C67AF] font-semibold">
+              « Previous
+            </button>
+
+            {[1,2,3,4].map((page) => (
+              <button
+                key={page}
+                className={`
+                  w-9 h-9
+                  rounded-full
+                  border
+                  text-[14px]
+                  transition-all
+                  ${
+                    page === currentPage
+                      ? "bg-[#8C67AF] text-white border-[#8C67AF]"
+                      : "border-[#D8C7E5] text-[#8C67AF]"
+                  }
+                `}
+              >
+                {page}
+              </button>
+            ))}
+
+            <span className="text-[#8C67AF]">...</span>
+
+            <button className="w-9 h-9 rounded-full border border-[#D8C7E5] text-[#8C67AF]">
+              20
+            </button>
+
+            <button className="text-[#8C67AF] font-semibold">
+              Next »
+            </button>
+
+          </div>
+
         </div>
       </section>
 
       {/* Newsletter CTA */}
-      <section className="section bg-[#F8F0F8] text-center">
-        <div className="container max-w-[600px]">
-          <span className="section-tag">Stay Updated</span>
-          <h2 className="section-title">Get Fertility Insights <span className="text-[#E8619A]">in Your Inbox</span></h2>
-          <p className="text-[#6B7280] mb-7">Subscribe for the latest articles, success stories, and expert advice on egg donation and fertility.</p>
-          <Link to="/contact-us" className="btn btn-pink btn-lg">Contact Us to Subscribe</Link>
+      <section className="py-10 ">
+        <div
+          className="
+            max-w-[1900px]
+            mx-auto
+            bg-[#5B4371]
+            min-h-[620px]
+            flex
+            items-center
+            rounded-tl-[260px]
+            rounded-br-[260px]
+          "
+        >
+          <div className="w-full px-8 lg:px-24">
+
+            <div className="grid lg:grid-cols-[1.2fr_1fr_1fr] items-center gap-16">
+
+              {/* LEFT */}
+              <div >
+
+                <div className="flex items-center gap-4 mb-10">
+                  <div className="w-[60px] h-[2px] bg-white" />
+
+                  <span className="text-white text-[18px]">
+                    Get Started
+                  </span>
+                </div>
+                <div className="flex">
+
+                  
+                  <img
+                    src="https://lucinaeggbank.com/wp-content/uploads/2021/03/symbol-in-tytle.svg"
+                    alt=""
+                    className="w-[52px] self-start"
+                  />
+                
+                <div>
+
+                <div className="flex items-start gap-4 mb-6">
+
+
+                  <h2 className="font-serif text-white text-[55px] leading-[1.05]">
+                    Begin Your Journey
+                    <br />
+                    With Lucina
+                  </h2>
+
+                </div>
+
+                <p className="text-white text-[18px] leading-[1.6] max-w-[420px]">
+                  Our caring team at Lucina strives to make your
+                  journey seamless - whether you are a donor
+                  recipient or want to become an egg donor.
+                </p>
+                </div>
+                </div>
+
+              </div>
+
+              {/* CENTER */}
+              <div>
+
+                <div className="w-[110px] h-[110px] rounded-full border border-white/40 relative mb-8">
+                  <svg
+                    width="52"
+                    height="52"
+                    viewBox="0 0 24 24"
+                    fill="white"
+                    className="absolute top-4 left-4"
+                  >
+                    <path d="M12 12a5 5 0 100-10 5 5 0 000 10zm0 2c-4.42 0-8 1.79-8 4v2h16v-2c0-2.21-3.58-4-8-4z" />
+                  </svg>
+                </div>
+                <h3 className="font-serif text-white text-[48px] leading-[1.05] mb-10">
+                  Become an Egg
+                  <br />
+                  Donor
+                </h3>
+
+                <Link
+                  to="/become-an-egg-donor"
+                  className="
+                    inline-flex
+                    items-center
+                    gap-4
+                    bg-white
+                    text-[#8C67AF]
+                    px-8
+                    h-[56px]
+                    rounded-full
+                    font-semibold
+                  "
+                >
+                  Apply
+
+                  <img
+                    src={PurpleArrowIcon}
+                    alt=""
+                    className="w-5"
+                  />
+                </Link>
+
+              </div>
+
+              {/* RIGHT */}
+              <div className="relative">
+
+              <div className="w-[110px] h-[110px] border border-white/40 rounded-full relative mb-8">
+                <svg
+                  width="52"
+                  height="52"
+                  viewBox="0 0 24 24"
+                  fill="white"
+                  className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+                >
+                  <path d="M16 11c1.66 0 3-1.79 3-4s-1.34-4-3-4-3 1.79-3 4 1.34 4 3 4zm-8 0c1.66 0 3-1.79 3-4S9.66 3 8 3 5 4.79 5 7s1.34 4 3 4zm0 2c-2.67 0-8 1.34-8 4v2h10v-2c0-1.18.46-2.25 1.22-3.09C10.12 13.34 8.92 13 8 13zm8 0c-.92 0-2.12.34-3.22.91A4.98 4.98 0 0114 17v2h10v-2c0-2.66-5.33-4-8-4z" />
+                </svg>
+              </div>
+
+                <h3 className="font-serif text-white text-[48px] leading-[1.05] mb-10">
+                  Intended
+                  <br />
+                  Parents
+                </h3>
+
+                <Link
+                  to="/find-an-egg-donor"
+                  className="
+                    inline-flex
+                    items-center
+                    gap-4
+                    bg-white
+                    text-[#8C67AF]
+                    px-8
+                    h-[56px]
+                    rounded-full
+                    font-semibold
+                  "
+                >
+                  Find a Donor
+
+                  <img
+                    src={PurpleArrowIcon}
+                    alt=""
+                    className="w-5"
+                  />
+                </Link>
+
+              </div>
+
+            </div>
+          </div>
         </div>
       </section>
 

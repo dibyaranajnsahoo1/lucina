@@ -340,9 +340,42 @@ const deleteFindDonorForm = async (req, res) => {
 // @access Public
 const submitContactForm = async (req, res) => {
   try {
-    const form = await ContactForm.create(req.body);
-    await sendContactConfirmation(req.body);
-    notifyAdmin('contact', req.body);
+    const {
+      recaptchaToken,
+      captchaToken,
+      'g-recaptcha-response': googleRecaptchaToken,
+      name,
+      email,
+      phone,
+      subject,
+      message,
+      inquiryType
+    } = req.body;
+
+    const captcha = await verifyRecaptchaToken(
+      recaptchaToken || captchaToken || googleRecaptchaToken,
+      req.ip
+    );
+
+    if (!captcha.success) {
+      return res.status(captcha.status || 400).json({
+        success: false,
+        message: captcha.message
+      });
+    }
+
+    const payload = {
+      name,
+      email,
+      phone,
+      subject: subject || `${inquiryType || 'General'} Inquiry`,
+      message,
+      inquiryType: inquiryType || 'General'
+    };
+
+    const form = await ContactForm.create(payload);
+    await sendContactConfirmation(payload);
+    notifyAdmin('contact', payload);
     res.status(201).json({
       success: true,
       message: 'Message sent successfully! We will get back to you within 1-2 business days.',
@@ -366,6 +399,8 @@ const getContactForms = async (req, res) => {
       query.$or = [
         { name: new RegExp(search, 'i') },
         { email: new RegExp(search, 'i') },
+        { phone: new RegExp(search, 'i') },
+        { inquiryType: new RegExp(search, 'i') },
         { subject: new RegExp(search, 'i') }
       ];
     }

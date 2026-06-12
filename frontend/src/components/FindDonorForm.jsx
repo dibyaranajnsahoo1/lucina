@@ -138,6 +138,10 @@ const FindDonorForm = ({ title = "Find Your Perfect Egg Donor", subtitle = "" })
       <div className="grid md:grid-cols-2 gap-4 mb-4">
         <div>
           <PhoneInput
+            containerClass="find-donor-phone"
+            inputClass="find-donor-phone-control"
+            buttonClass="find-donor-phone-button"
+            dropdownClass="find-donor-phone-dropdown"
             country={"in"}
             enableSearch
             preferredCountries={["in", "us", "ca", "gb"]}
@@ -271,6 +275,57 @@ const FindDonorForm = ({ title = "Find Your Perfect Egg Donor", subtitle = "" })
         {loading ? "Submitting..." : "Submit"}
       </button>
     </form>
+
+    <style>{`
+      .find-donor-phone.react-tel-input {
+        width: 100%;
+      }
+
+      .find-donor-phone .form-control {
+        width: 100% !important;
+        height: 60px !important;
+        background: #7B688A !important;
+        border: 1px solid rgba(255, 255, 255, 0.6) !important;
+        border-radius: 6px !important;
+        box-shadow: none !important;
+        color: #ffffff !important;
+        font-size: 16px !important;
+        padding-left: 58px !important;
+      }
+
+      .find-donor-phone .form-control:focus {
+        border-color: #ffffff !important;
+        box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.18) !important;
+        outline: none !important;
+      }
+
+      .find-donor-phone .flag-dropdown {
+        height: 60px !important;
+        background: #7B688A !important;
+        border: 1px solid rgba(255, 255, 255, 0.6) !important;
+        border-right: 0 !important;
+        border-radius: 6px 0 0 6px !important;
+      }
+
+      .find-donor-phone .selected-flag,
+      .find-donor-phone .selected-flag:hover,
+      .find-donor-phone .selected-flag:focus,
+      .find-donor-phone .flag-dropdown.open .selected-flag {
+        background: #7B688A !important;
+        border-radius: 6px 0 0 6px !important;
+      }
+
+      .find-donor-phone .country-list {
+        border: 1px solid #D9C8E8 !important;
+        border-radius: 8px !important;
+        margin-top: 6px !important;
+      }
+
+      .find-donor-phone .search-box {
+        border: 1px solid #D9C8E8 !important;
+        color: #1A1A2E !important;
+      }
+    `}</style>
   </div>
 );
 };
