@@ -12,6 +12,7 @@ const testimonialRoutes = require('./routes/testimonials');
 const blogRoutes = require('./routes/blogs');
 
 const app = express();
+app.set('trust proxy', 1); // Trust first proxy (Render/Vercel)
 
 // Rate limiting
 const limiter = rateLimit({
