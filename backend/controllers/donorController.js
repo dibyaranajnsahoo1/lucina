@@ -1,7 +1,18 @@
 const Donor = require('../models/Donor');
 const mongoose = require('mongoose');
-const fs = require('fs');
-const path = require('path');
+const { cloudinary } = require('../config/cloudinary');
+
+const extractPublicId = (url) => {
+  try {
+    const parts = url.split('/');
+    const fileWithExt = parts[parts.length - 1];
+    const folder = parts[parts.length - 2];
+    const filename = fileWithExt.split('.')[0];
+    return `${folder}/${filename}`;
+  } catch (err) {
+    return null;
+  }
+};
 
 // @desc Get all donors (public)
 // @route GET /api/donors
@@ -93,9 +104,9 @@ const createDonor = async (req, res) => {
   try {
     const donorData = { ...req.body };
     
-    // Handle uploaded images
+    // Handle uploaded images (Cloudinary)
     if (req.files && req.files.length > 0) {
-      const imagePaths = req.files.map(file => `/uploads/donor-images/${file.filename}`);
+      const imagePaths = req.files.map(file => file.path);
       donorData.profileImages = imagePaths;
       donorData.profileImage = imagePaths[0];
     }
@@ -120,9 +131,9 @@ const updateDonor = async (req, res) => {
   try {
     const donorData = { ...req.body };
     
-    // Handle uploaded images
+    // Handle uploaded images (Cloudinary)
     if (req.files && req.files.length > 0) {
-      const imagePaths = req.files.map(file => `/uploads/donor-images/${file.filename}`);
+      const imagePaths = req.files.map(file => file.path);
       donorData.profileImages = imagePaths;
       donorData.profileImage = imagePaths[0];
     }
@@ -154,12 +165,14 @@ const deleteDonor = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Donor not found' });
     }
 
-    // Delete associated images
+    // Delete associated images from Cloudinary
     if (donor.profileImages && donor.profileImages.length > 0) {
       donor.profileImages.forEach(imagePath => {
-        const fullPath = path.join(__dirname, '..', imagePath.replace(/^\/+/, ''));
-        if (fs.existsSync(fullPath)) {
-          fs.unlinkSync(fullPath);
+        if (imagePath.includes('cloudinary.com')) {
+          const publicId = extractPublicId(imagePath);
+          if (publicId) {
+            cloudinary.uploader.destroy(publicId).catch(err => console.error(err));
+          }
         }
       });
     }

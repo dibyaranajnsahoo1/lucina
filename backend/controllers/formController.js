@@ -3,16 +3,13 @@ const FindDonorForm = require('../models/FindDonorForm');
 const ContactForm = require('../models/ContactForm');
 const { sendDonorApplicationConfirmation, sendContactConfirmation, notifyAdmin } = require('../utils/email');
 const { verifyRecaptchaToken } = require('../utils/recaptcha');
-const fs = require('fs');
-const path = require('path');
+const { cloudinary } = require('../config/cloudinary');
 
 const removeUploadedFiles = (files = []) => {
   files.forEach((file) => {
-    if (file.path) {
-      fs.unlink(file.path, (error) => {
-        if (error) {
-          console.error('Failed to remove uploaded file:', file.path, error);
-        }
+    if (file.filename) {
+      cloudinary.uploader.destroy(file.filename).catch(err => {
+        console.error('Failed to remove file from Cloudinary:', file.filename, err);
       });
     }
   });
@@ -60,14 +57,14 @@ const submitDonorApplication = async (req, res) => {
       });
     }
 
-    // Process uploaded files
+    // Process uploaded files (Cloudinary)
     const uploadedFiles = [];
     if (req.files && req.files.length > 0) {
       req.files.forEach(file => {
         uploadedFiles.push({
-          filename: file.filename,
+          filename: file.filename, // Cloudinary public_id
           originalName: file.originalname,
-          path: `/uploads/applications/${file.filename}`,
+          path: file.path,         // Cloudinary secure URL
           size: file.size,
           mimetype: file.mimetype
         });
@@ -186,12 +183,8 @@ const downloadDonorApplicationFile = async (req, res) => {
       return res.status(404).json({ success: false, message: 'File not found' });
     }
 
-    const filePath = path.join(__dirname, '../uploads/applications', uploadedFile.filename);
-    if (!fs.existsSync(filePath)) {
-      return res.status(404).json({ success: false, message: 'File is missing from storage' });
-    }
-
-    return res.download(filePath, uploadedFile.originalName || uploadedFile.filename);
+    // Redirect directly to the Cloudinary URL
+    return res.redirect(uploadedFile.path);
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

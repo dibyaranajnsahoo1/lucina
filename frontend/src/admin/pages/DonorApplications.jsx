@@ -25,12 +25,20 @@ const DetailModal = ({ app, onClose, onStatusUpdate }) => {
     } catch (err) {
       toast.error(err.message);
     } finally {
+
       setSaving(false);
     }
   };
 
   const handleFileDownload = async (file) => {
     try {
+      if (file.path && file.path.startsWith('http')) {
+        // Direct Cloudinary URL
+        window.open(file.path, '_blank');
+        return;
+      }
+
+      // Legacy fallback for locally stored files
       const blob = await downloadDonorApplicationFile(app._id, file.filename);
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
@@ -38,7 +46,7 @@ const DetailModal = ({ app, onClose, onStatusUpdate }) => {
       link.download = file.originalName || file.filename;
       document.body.appendChild(link);
       link.click();
-      link.remove();
+      document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
     } catch (err) {
       toast.error(err.message || 'Could not download file');

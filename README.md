@@ -14,7 +14,7 @@ A complete full-stack replica of [lucinaeggbank.com](https://lucinaeggbank.com/)
 | Backend | Node.js + Express.js |
 | Database | MongoDB + Mongoose |
 | Auth | JWT (JSON Web Tokens) & React Context |
-| File Uploads | Multer |
+| File Uploads | Multer + Cloudinary (Cloud Storage) |
 | Email | Nodemailer (Gmail SMTP) |
 | Styling | Custom CSS (Design-system approach with PostCSS nesting) |
 
@@ -95,6 +95,11 @@ ADMIN_EMAIL=admin@lucinaeggbank.com
 # Google reCAPTCHA
 RECAPTCHA_SECRET_KEY=your_recaptcha_secret_key
 RECAPTCHA_EXPECTED_HOSTNAME=localhost
+
+# Cloudinary (File Uploads)
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
 
 # URLs (Frontend URL for CORS)
 CLIENT_URL=http://localhost:5173
@@ -305,6 +310,9 @@ When a contact form is submitted:
 |----------|----------|-------------|
 | `MONGO_URI` | ✅ | MongoDB connection string |
 | `JWT_SECRET` | ✅ | Secret key for JWT signing |
+| `CLOUDINARY_CLOUD_NAME`| ✅ | Cloudinary Cloud Name for file uploads |
+| `CLOUDINARY_API_KEY`| ✅ | Cloudinary API Key |
+| `CLOUDINARY_API_SECRET`| ✅ | Cloudinary API Secret |
 | `EMAIL_USER` | ⚠️ | Gmail address for sending emails |
 | `EMAIL_PASS` | ⚠️ | Gmail App Password |
 | `ADMIN_EMAIL` | ⚠️ | Where admin notifications are sent |
